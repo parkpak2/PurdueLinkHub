@@ -174,8 +174,7 @@ function displayLinks() {
 
     // Show empty state if no links
     if (state.filteredLinks.length === 0) {
-        elements.emptyState.style.display = 'block';
-        elements.linksGrid.style.display = 'none';
+        showEmptyState();
         return;
     }
 
@@ -187,6 +186,30 @@ function displayLinks() {
         const card = createLinkCard(link);
         elements.linksGrid.appendChild(card);
     });
+}
+
+function showEmptyState() {
+    elements.linksGrid.style.display = 'none';
+    elements.emptyState.style.display = 'block';
+
+    // Customize message based on context
+    const emptyIcon = elements.emptyState.querySelector('.empty-icon');
+    const emptyTitle = elements.emptyState.querySelector('h2');
+    const emptyText = elements.emptyState.querySelector('p');
+
+    if (state.currentCategory === 'My Links' && state.pinnedLinks.size === 0) {
+        emptyIcon.textContent = '⭐';
+        emptyTitle.textContent = 'No pinned links yet';
+        emptyText.textContent = 'Click the star icon on any resource card to add it to My Links for quick access';
+    } else if (state.searchQuery) {
+        emptyIcon.textContent = '🔍';
+        emptyTitle.textContent = 'No resources found';
+        emptyText.textContent = `No results for "${state.searchQuery}". Try a different search term or category`;
+    } else {
+        emptyIcon.textContent = '🔍';
+        emptyTitle.textContent = 'No resources found';
+        emptyText.textContent = 'Try adjusting your search or category filter';
+    }
 }
 
 function createLinkCard(link) {

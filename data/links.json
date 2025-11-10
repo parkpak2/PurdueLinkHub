@@ -4,7 +4,7 @@
     "name": "Brightspace",
     "url": "https://brightspace.purdue.edu",
     "category": "Academics",
-    "description": "Learning Management System",
+    "description": "Download course materials, submit assignments, check grades",
     "icon": "📚"
   },
   {
@@ -12,7 +12,7 @@
     "name": "MyPurdue",
     "url": "https://mypurdue.purdue.edu",
     "category": "Academics",
-    "description": "Student portal and registration",
+    "description": "Course registration, view grades, manage student info",
     "icon": "🎓"
   },
   {
@@ -20,7 +20,7 @@
     "name": "Course Catalog",
     "url": "https://catalog.purdue.edu",
     "category": "Academics",
-    "description": "Browse courses and requirements",
+    "description": "Search courses, check major requirements",
     "icon": "📖"
   },
   {
@@ -28,7 +28,7 @@
     "name": "BoilerConnect",
     "url": "https://boilerconnect.purdue.edu",
     "category": "Campus Life",
-    "description": "Student organizations and events",
+    "description": "Join clubs, find campus events and free food",
     "icon": "🎉"
   },
   {
@@ -36,7 +36,7 @@
     "name": "Handshake",
     "url": "https://purdue.joinhandshake.com",
     "category": "Career",
-    "description": "Jobs, internships, and career services",
+    "description": "Find internships, full-time jobs, register for career fairs",
     "icon": "💼"
   },
   {
@@ -44,7 +44,7 @@
     "name": "Outlook Email",
     "url": "https://outlook.office.com",
     "category": "Utilities",
-    "description": "Purdue email access",
+    "description": "Check school email, reply to professors",
     "icon": "📧"
   },
   {
@@ -52,7 +52,7 @@
     "name": "Purdue Libraries",
     "url": "https://www.lib.purdue.edu",
     "category": "Academics",
-    "description": "Library resources and research",
+    "description": "Search papers, reserve study rooms, borrow books",
     "icon": "🏛️"
   },
   {
@@ -60,7 +60,7 @@
     "name": "Center for Career Opportunities",
     "url": "https://www.cco.purdue.edu",
     "category": "Career",
-    "description": "Career counseling and resources",
+    "description": "Resume review, mock interviews, career counseling",
     "icon": "🚀"
   },
   {
@@ -68,7 +68,7 @@
     "name": "University Residences",
     "url": "https://www.housing.purdue.edu",
     "category": "Campus Life",
-    "description": "Housing and residence halls",
+    "description": "Apply for dorms, find roommates, request maintenance",
     "icon": "🏠"
   },
   {
@@ -76,7 +76,7 @@
     "name": "Purdue Dining",
     "url": "https://dining.purdue.edu",
     "category": "Campus Life",
-    "description": "Dining courts and meal plans",
+    "description": "Check today's menu and dining court hours",
     "icon": "🍽️"
   },
   {
@@ -84,7 +84,7 @@
     "name": "Protect Purdue",
     "url": "https://protect.purdue.edu",
     "category": "Utilities",
-    "description": "Health and safety resources",
+    "description": "Health screening, COVID info, campus safety",
     "icon": "🛡️"
   },
   {
@@ -92,7 +92,7 @@
     "name": "Parking Services",
     "url": "https://www.purdue.edu/parking",
     "category": "Utilities",
-    "description": "Parking permits and maps",
+    "description": "Buy parking permits, find lots, pay tickets",
     "icon": "🚗"
   },
   {
@@ -100,7 +100,7 @@
     "name": "Office of the Registrar",
     "url": "https://www.purdue.edu/registrar",
     "category": "Academics",
-    "description": "Grades, transcripts, and records",
+    "description": "Order transcripts, enrollment verification, records",
     "icon": "📋"
   },
   {
@@ -108,7 +108,7 @@
     "name": "Bursar's Office",
     "url": "https://www.purdue.edu/bursar",
     "category": "Utilities",
-    "description": "Billing and financial services",
+    "description": "Pay tuition, view bills, request refunds",
     "icon": "💳"
   },
   {
@@ -116,7 +116,7 @@
     "name": "Financial Aid",
     "url": "https://www.purdue.edu/financialaid",
     "category": "Utilities",
-    "description": "Scholarships and financial aid",
+    "description": "Apply for scholarships, loans, financial assistance",
     "icon": "💰"
   },
   {
@@ -124,7 +124,7 @@
     "name": "CAPS",
     "url": "https://www.purdue.edu/caps",
     "category": "Campus Life",
-    "description": "Counseling and Psychological Services",
+    "description": "Book counseling appointments, mental health support (free)",
     "icon": "🧠"
   },
   {
@@ -132,7 +132,7 @@
     "name": "Recreational Sports",
     "url": "https://www.purdue.edu/recwell",
     "category": "Campus Life",
-    "description": "Fitness centers and intramurals",
+    "description": "Access gyms, join fitness classes and intramurals",
     "icon": "⚽"
   },
   {
@@ -140,7 +140,7 @@
     "name": "Purdue Tutoring",
     "url": "https://www.purdue.edu/tutoring",
     "category": "Academics",
-    "description": "Academic tutoring services",
+    "description": "Free tutoring, math/science help, SI sessions",
     "icon": "✏️"
   },
   {
@@ -148,7 +148,7 @@
     "name": "Campus Map",
     "url": "https://www.purdue.edu/campus-map",
     "category": "Utilities",
-    "description": "Interactive campus map",
+    "description": "Find buildings and get directions to classrooms",
     "icon": "🗺️"
   },
   {
@@ -156,7 +156,7 @@
     "name": "CityBus",
     "url": "https://www.gocitybus.com",
     "category": "Utilities",
-    "description": "Campus shuttle and bus routes",
+    "description": "Real-time bus tracking, routes and schedules",
     "icon": "🚌"
   }
 ]
