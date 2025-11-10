@@ -1,0 +1,162 @@
+[
+  {
+    "id": "brightspace",
+    "name": "Brightspace",
+    "url": "https://brightspace.purdue.edu",
+    "category": "Academics",
+    "description": "Learning Management System",
+    "icon": "📚"
+  },
+  {
+    "id": "mypurdue",
+    "name": "MyPurdue",
+    "url": "https://mypurdue.purdue.edu",
+    "category": "Academics",
+    "description": "Student portal and registration",
+    "icon": "🎓"
+  },
+  {
+    "id": "catalog",
+    "name": "Course Catalog",
+    "url": "https://catalog.purdue.edu",
+    "category": "Academics",
+    "description": "Browse courses and requirements",
+    "icon": "📖"
+  },
+  {
+    "id": "boilerconnect",
+    "name": "BoilerConnect",
+    "url": "https://boilerconnect.purdue.edu",
+    "category": "Campus Life",
+    "description": "Student organizations and events",
+    "icon": "🎉"
+  },
+  {
+    "id": "handshake",
+    "name": "Handshake",
+    "url": "https://purdue.joinhandshake.com",
+    "category": "Career",
+    "description": "Jobs, internships, and career services",
+    "icon": "💼"
+  },
+  {
+    "id": "outlook",
+    "name": "Outlook Email",
+    "url": "https://outlook.office.com",
+    "category": "Utilities",
+    "description": "Purdue email access",
+    "icon": "📧"
+  },
+  {
+    "id": "library",
+    "name": "Purdue Libraries",
+    "url": "https://www.lib.purdue.edu",
+    "category": "Academics",
+    "description": "Library resources and research",
+    "icon": "🏛️"
+  },
+  {
+    "id": "ccr",
+    "name": "Center for Career Opportunities",
+    "url": "https://www.cco.purdue.edu",
+    "category": "Career",
+    "description": "Career counseling and resources",
+    "icon": "🚀"
+  },
+  {
+    "id": "housing",
+    "name": "University Residences",
+    "url": "https://www.housing.purdue.edu",
+    "category": "Campus Life",
+    "description": "Housing and residence halls",
+    "icon": "🏠"
+  },
+  {
+    "id": "dining",
+    "name": "Purdue Dining",
+    "url": "https://dining.purdue.edu",
+    "category": "Campus Life",
+    "description": "Dining courts and meal plans",
+    "icon": "🍽️"
+  },
+  {
+    "id": "protect-purdue",
+    "name": "Protect Purdue",
+    "url": "https://protect.purdue.edu",
+    "category": "Utilities",
+    "description": "Health and safety resources",
+    "icon": "🛡️"
+  },
+  {
+    "id": "parking",
+    "name": "Parking Services",
+    "url": "https://www.purdue.edu/parking",
+    "category": "Utilities",
+    "description": "Parking permits and maps",
+    "icon": "🚗"
+  },
+  {
+    "id": "registrar",
+    "name": "Office of the Registrar",
+    "url": "https://www.purdue.edu/registrar",
+    "category": "Academics",
+    "description": "Grades, transcripts, and records",
+    "icon": "📋"
+  },
+  {
+    "id": "bursar",
+    "name": "Bursar's Office",
+    "url": "https://www.purdue.edu/bursar",
+    "category": "Utilities",
+    "description": "Billing and financial services",
+    "icon": "💳"
+  },
+  {
+    "id": "financial-aid",
+    "name": "Financial Aid",
+    "url": "https://www.purdue.edu/financialaid",
+    "category": "Utilities",
+    "description": "Scholarships and financial aid",
+    "icon": "💰"
+  },
+  {
+    "id": "caps",
+    "name": "CAPS",
+    "url": "https://www.purdue.edu/caps",
+    "category": "Campus Life",
+    "description": "Counseling and Psychological Services",
+    "icon": "🧠"
+  },
+  {
+    "id": "rec-sports",
+    "name": "Recreational Sports",
+    "url": "https://www.purdue.edu/recwell",
+    "category": "Campus Life",
+    "description": "Fitness centers and intramurals",
+    "icon": "⚽"
+  },
+  {
+    "id": "tutoring",
+    "name": "Purdue Tutoring",
+    "url": "https://www.purdue.edu/tutoring",
+    "category": "Academics",
+    "description": "Academic tutoring services",
+    "icon": "✏️"
+  },
+  {
+    "id": "campus-map",
+    "name": "Campus Map",
+    "url": "https://www.purdue.edu/campus-map",
+    "category": "Utilities",
+    "description": "Interactive campus map",
+    "icon": "🗺️"
+  },
+  {
+    "id": "bus-service",
+    "name": "CityBus",
+    "url": "https://www.gocitybus.com",
+    "category": "Utilities",
+    "description": "Campus shuttle and bus routes",
+    "icon": "🚌"
+  }
+]
