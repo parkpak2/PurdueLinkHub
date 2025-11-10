@@ -95,6 +95,10 @@ body {
     box-shadow: 0 0 0 3px rgba(206, 184, 136, 0.2);
 }
 
+.search-input::placeholder {
+    color: #999;
+}
+
 /* ==========================================
    Banner
    ========================================== */
@@ -222,9 +226,14 @@ body {
     border-color: var(--purdue-gold);
 }
 
+.link-card:active {
+    transform: translateY(-2px);
+}
+
 .link-card.pinned {
     border-color: var(--purdue-old-gold);
     background: linear-gradient(135deg, #ffffff 0%, #fffef8 100%);
+    box-shadow: 0 2px 8px rgba(206, 184, 136, 0.2);
 }
 
 .link-header {
@@ -254,6 +263,7 @@ body {
     font-size: 0.9rem;
     color: var(--purdue-dark-gray);
     margin: 0;
+    line-height: 1.5;
 }
 
 .link-category {
@@ -398,8 +408,27 @@ body {
     }
 }
 
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .link-card {
     animation: fadeIn 0.3s ease;
+}
+
+.empty-state {
+    animation: fadeInUp 0.4s ease;
+}
+
+.banner {
+    animation: fadeInUp 0.4s ease;
 }
 
 /* ==========================================
