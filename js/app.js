@@ -11,7 +11,8 @@ const state = {
     filteredLinks: [],
     pinnedLinks: new Set(),
     currentCategory: 'all',
-    searchQuery: ''
+    searchQuery: '',
+    theme: 'light'  
 };
 
 // ==========================================
@@ -24,7 +25,8 @@ const elements = {
     tabButtons: document.querySelectorAll('.tab-button'),
     contextBanner: document.getElementById('contextBanner'),
     bannerMessage: document.getElementById('bannerMessage'),
-    closeBanner: document.getElementById('closeBanner')
+    closeBanner: document.getElementById('closeBanner'),
+    themeSwitch: document.getElementById('themeSwitch')
 };
 
 // ==========================================
@@ -37,6 +39,9 @@ async function init() {
 
         // Load pinned links from localStorage
         loadPinnedLinks();
+
+        // Loads light/dark theme
+        loadTheme();
 
         // Display all links initially
         displayLinks();
@@ -105,6 +110,15 @@ function setupEventListeners() {
     if (elements.closeBanner) {
         elements.closeBanner.addEventListener('click', hideBanner);
     }
+
+    // Change themes
+    if (elements.themeSwitch) {              
+        elements.themeSwitch.addEventListener(
+            'change',
+            handleThemeToggle
+        );
+    }
+
 }
 
 function handleSearch(event) {
@@ -140,6 +154,37 @@ function handlePinToggle(linkId, button) {
     if (state.currentCategory === 'My Links') {
         filterAndDisplayLinks();
     }
+}
+
+
+function loadTheme() {
+    const storedTheme = localStorage.getItem('theme');
+    const theme = storedTheme === 'dark' ? 'dark' : 'light';
+    state.theme = theme;
+
+    if (theme === 'dark') {
+        document.body.classList.add('dark-theme');
+        if (elements.themeSwitch) elements.themeSwitch.checked = true;
+    } else {
+        document.body.classList.remove('dark-theme');
+        if (elements.themeSwitch) elements.themeSwitch.checked = false;
+    }
+}
+
+function saveTheme() {
+    localStorage.setItem('theme', state.theme);
+}
+
+function handleThemeToggle(event) {
+    state.theme = event.target.checked ? 'dark' : 'light';
+
+    if (state.theme === 'dark') {
+        document.body.classList.add('dark-theme');
+    } else {
+        document.body.classList.remove('dark-theme');
+    }
+
+    saveTheme();
 }
 
 // ==========================================
