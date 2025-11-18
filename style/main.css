@@ -46,6 +46,70 @@ body {
 }
 
 /* ==========================================
+   Toggle-Theme
+   ========================================== */
+
+
+.theme-toggle {
+    position: relative;
+    left: 0;
+    transform: none;
+}
+
+.theme-switch-input {
+    display: none;
+}
+
+
+.theme-switch-label {
+    width: 90px;
+    height: 42px;
+    background: #dcdcdc;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px;
+    position: relative;
+    cursor: pointer;
+}
+
+.sun-icon,
+.moon-icon {
+    font-size: 22px;
+    opacity: 0.6;
+}
+
+.toggle-ball {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: 34px;
+    height: 34px;
+    background: white;
+    border-radius: 50%;
+    transition: .25s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+}
+
+.theme-switch-input:checked + .theme-switch-label {
+    background: #444;
+}
+
+.theme-switch-input:checked + .theme-switch-label .toggle-ball {
+    transform: translateX(46px);
+}
+
+.theme-switch-input:checked + .theme-switch-label .sun-icon {
+    opacity: .3;
+}
+
+.theme-switch-input:checked + .theme-switch-label .moon-icon {
+    opacity: 1;
+}
+
+
+/* ==========================================
    Header
    ========================================== */
 .header {
@@ -59,14 +123,19 @@ body {
 }
 
 .header-content {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+    display: grid;
+    grid-template-columns: 80px 1fr 400px;
+    align-items: center;
+    position: relative;
 }
 
+
 .logo-section {
-    text-align: center;
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
 }
+
 
 .logo {
     font-size: 1.5rem;
@@ -76,7 +145,8 @@ body {
 }
 
 .search-section {
-    width: 100%;
+    display: flex;
+    justify-content: flex-end;
 }
 
 .search-input {
@@ -450,4 +520,59 @@ body {
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
     }
+}
+
+
+
+/* ==========================================
+   Dark mode
+   ========================================== */
+
+body.dark-theme {
+    background: linear-gradient(135deg, #424242 0%, #181818 100%);
+    color: var(--purdue-gray);
+}
+
+body.dark-theme .search-input {
+    background: #1f1f1f;
+    color: var(--purdue-white);
+    border-color: var(--purdue-gold);
+}
+
+body.dark-theme .search-input::placeholder {
+    color: #bbbbbb;
+}
+
+body.dark-theme .link-card {
+    background: #181818;
+    border-color: #333333;
+}
+
+body.dark-theme .link-name {
+    color: var(--purdue-white);
+}
+
+body.dark-theme .link-description {
+    color: var(--purdue-gray);
+}
+
+body.dark-theme .link-category {
+    background: #2a2a2a;
+    color: var(--purdue-gray);
+}
+
+body.dark-theme .tab-button {
+    background: #181818;
+    color: var(--purdue-gray);
+    border-color: #333333;
+}
+
+body.dark-theme .tab-button.active {
+    background: var(--purdue-gold);
+    color: var(--purdue-black);
+    border-color: var(--purdue-gold);
+}
+
+body.dark-theme .footer {
+    background: #050505;
 }
