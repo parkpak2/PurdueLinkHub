@@ -159,13 +159,19 @@
     </footer>
 
     <script src="js/app.js"></script>
+    <script src="js/trending.js"></script>
     <script src="js/deadlines.js"></script>
     <script src="js/schedule.js"></script>
     <script src="js/courseSearch.js"></script>
     <script>
         // Initialize all systems after DOM is loaded
         document.addEventListener('DOMContentLoaded', () => {
-            // Initialize deadlines first (affects banner and course planner highlighting)
+            // Initialize trending first (requires server)
+            if (window.Trending) {
+                window.Trending.init();
+            }
+
+            // Initialize deadlines (affects banner and course planner highlighting)
             if (window.Deadlines) {
                 window.Deadlines.init();
             }

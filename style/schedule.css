@@ -3,6 +3,108 @@
  */
 
 /* ==========================================
+   Trending Card
+   ========================================== */
+.trending-card {
+    background: linear-gradient(135deg, rgba(255, 107, 107, 0.1) 0%, var(--card-bg) 100%);
+    border: 2px solid rgba(255, 107, 107, 0.3);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(255, 107, 107, 0.2);
+}
+
+.trending-header {
+    margin-bottom: 20px;
+}
+
+.trending-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+}
+
+.trending-subtitle {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.trending-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.trending-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 16px;
+    background: var(--card-bg);
+    border-radius: 8px;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.trending-item:hover {
+    border-color: #FF6B6B;
+    transform: translateX(4px);
+    box-shadow: 0 2px 8px rgba(255, 107, 107, 0.2);
+}
+
+.trending-rank {
+    font-size: 24px;
+    font-weight: 700;
+    min-width: 40px;
+    text-align: center;
+    color: #FF6B6B;
+}
+
+.trending-content {
+    flex: 1;
+}
+
+.trending-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.trending-count {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.trending-icon {
+    font-size: 20px;
+    color: #FF6B6B;
+    opacity: 0.5;
+    transition: all 0.3s ease;
+}
+
+.trending-item:hover .trending-icon {
+    opacity: 1;
+    transform: translateX(4px);
+}
+
+.trending-footer {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color);
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+/* ==========================================
    Deadlines Card
    ========================================== */
 .deadlines-card {
