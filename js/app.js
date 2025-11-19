@@ -1,423 +1,525 @@
-/**
- * Purdue Link Hub - Main Application
- * Manages link display, filtering, search, and personalization
- */
+    /**
+     * Purdue Link Hub - Main Application
+     * Manages link display, filtering, search, and personalization
+     */
+
+    // ==========================================
+    // State Management
+    // ==========================================
+    const state = {
+        allLinks: [],
+        filteredLinks: [],
+        pinnedLinks: new Set(),
+        currentCategory: 'all',
+        searchQuery: '',
+        theme: 'light'  
+    };
+
+    // ==========================================
+    // DOM Elements
+    // ==========================================
+    const elements = {
+        linksGrid: document.getElementById('linksGrid'),
+        searchInput: document.getElementById('searchInput'),
+        emptyState: document.getElementById('emptyState'),
+        tabButtons: document.querySelectorAll('.tab-button'),
+        contextBanner: document.getElementById('contextBanner'),
+        bannerMessage: document.getElementById('bannerMessage'),
+        closeBanner: document.getElementById('closeBanner'),
+        themeSwitch: document.getElementById('themeSwitch'),
+        userGuideOverlay: document.getElementById('userGuideOverlay'),
+        userGuideCard: document.getElementById('userGuideCard'),
+        userGuideHeader: document.getElementById('userGuideHeader'),
+        closeUserGuide: document.getElementById('closeUserGuide'),
+        userGuideResize: document.getElementById('userGuideResize')
+    };
 
 // ==========================================
-// State Management
+// User Guide panel (open / close / drag / resize)
 // ==========================================
-const state = {
-    allLinks: [],
-    filteredLinks: [],
-    pinnedLinks: new Set(),
-    currentCategory: 'all',
-    searchQuery: '',
-    theme: 'light'  
-};
+const guideOverlay = elements.userGuideOverlay;
+const guidePanel   = elements.userGuideCard;
+const guideHeader  = elements.userGuideHeader;
+const guideClose   = elements.closeUserGuide;
+const guideResize  = elements.userGuideResize;
 
-// ==========================================
-// DOM Elements
-// ==========================================
-const elements = {
-    linksGrid: document.getElementById('linksGrid'),
-    searchInput: document.getElementById('searchInput'),
-    emptyState: document.getElementById('emptyState'),
-    tabButtons: document.querySelectorAll('.tab-button'),
-    contextBanner: document.getElementById('contextBanner'),
-    bannerMessage: document.getElementById('bannerMessage'),
-    closeBanner: document.getElementById('closeBanner'),
-    themeSwitch: document.getElementById('themeSwitch')
-};
+let isDragging = false;
+let dragOffsetX = 0;
+let dragOffsetY = 0;
 
-// ==========================================
-// Initialization
-// ==========================================
-async function init() {
-    try {
-        // Load links from JSON
-        await loadLinks();
+let isResizing = false;
+let startWidth = 0;
+let startHeight = 0;
+let startX = 0;
+let startY = 0;
 
-        // Load pinned links from localStorage
-        loadPinnedLinks();
-
-        // Loads light/dark theme
-        loadTheme();
-
-        // Display all links initially
-        displayLinks();
-
-        // Setup event listeners
-        setupEventListeners();
-
-        // Show contextual banner if applicable
-        showContextualBanner();
-
-        console.log('Purdue Link Hub initialized successfully');
-    } catch (error) {
-        console.error('Error initializing app:', error);
-        showError('Failed to load resources. Please refresh the page.');
-    }
+function openUserGuide() {
+    if (!guideOverlay || !guidePanel) return;
+    guideOverlay.style.display = 'flex'; // overlay is a flex container in CSS
 }
 
-// ==========================================
-// Data Loading
-// ==========================================
-async function loadLinks() {
-    try {
-        const response = await fetch('data/links.json');
-        if (!response.ok) {
-            throw new Error('Failed to fetch links');
-        }
-        state.allLinks = await response.json();
-        state.filteredLinks = [...state.allLinks];
-    } catch (error) {
-        console.error('Error loading links:', error);
-        throw error;
-    }
+function closeUserGuide() {
+    if (!guideOverlay) return;
+    guideOverlay.style.display = 'none';
 }
 
-function loadPinnedLinks() {
-    const stored = localStorage.getItem('pinnedLinks');
-    if (stored) {
-        try {
-            const pinnedArray = JSON.parse(stored);
-            state.pinnedLinks = new Set(pinnedArray);
-        } catch (error) {
-            console.error('Error loading pinned links:', error);
-            state.pinnedLinks = new Set();
-        }
-    }
-}
-
-function savePinnedLinks() {
-    const pinnedArray = Array.from(state.pinnedLinks);
-    localStorage.setItem('pinnedLinks', JSON.stringify(pinnedArray));
-}
-
-// ==========================================
-// Event Listeners
-// ==========================================
-function setupEventListeners() {
-    // Search input
-    elements.searchInput.addEventListener('input', handleSearch);
-
-    // Category tabs
-    elements.tabButtons.forEach(button => {
-        button.addEventListener('click', handleCategoryChange);
+// Close via X button
+if (guideClose) {
+    guideClose.addEventListener('click', (e) => {
+        e.stopPropagation();
+        closeUserGuide();
     });
-
-    // Banner close button
-    if (elements.closeBanner) {
-        elements.closeBanner.addEventListener('click', hideBanner);
-    }
-
-    // Change themes
-    if (elements.themeSwitch) {              
-        elements.themeSwitch.addEventListener(
-            'change',
-            handleThemeToggle
-        );
-    }
-
 }
 
-function handleSearch(event) {
-    state.searchQuery = event.target.value.toLowerCase().trim();
-    filterAndDisplayLinks();
+// Close when clicking dark background
+if (guideOverlay) {
+    guideOverlay.addEventListener('click', (e) => {
+        if (e.target === guideOverlay) {
+            closeUserGuide();
+        }
+    });
 }
 
-function handleCategoryChange(event) {
-    const category = event.target.dataset.category;
-    state.currentCategory = category;
-
-    // Update active tab
-    elements.tabButtons.forEach(btn => btn.classList.remove('active'));
-    event.target.classList.add('active');
-
-    filterAndDisplayLinks();
+// Dragging (header)
+if (guideHeader && guidePanel) {
+    guideHeader.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        const rect = guidePanel.getBoundingClientRect();
+        dragOffsetX = e.clientX - rect.left;
+        dragOffsetY = e.clientY - rect.top;
+        e.preventDefault();
+    });
 }
 
-function handlePinToggle(linkId, button) {
-    if (state.pinnedLinks.has(linkId)) {
-        state.pinnedLinks.delete(linkId);
-        button.classList.remove('pinned');
-        button.textContent = '⭐';
-    } else {
-        state.pinnedLinks.add(linkId);
-        button.classList.add('pinned');
-        button.textContent = '⭐';
+// Resizing (bottom-right corner)
+if (guideResize && guidePanel) {
+    guideResize.addEventListener('mousedown', (e) => {
+        isResizing = true;
+        const rect = guidePanel.getBoundingClientRect();
+        startWidth  = rect.width;
+        startHeight = rect.height;
+        startX = e.clientX;
+        startY = e.clientY;
+        e.preventDefault();
+    });
+}
+
+// Mouse move = drag OR resize
+document.addEventListener('mousemove', (e) => {
+    if (isDragging && guidePanel) {
+        guidePanel.style.left = (e.clientX - dragOffsetX) + 'px';
+        guidePanel.style.top  = (e.clientY - dragOffsetY) + 'px';
+    } else if (isResizing && guidePanel) {
+        const newWidth  = startWidth  + (e.clientX - startX);
+        const newHeight = startHeight + (e.clientY - startY);
+        guidePanel.style.width  = Math.max(260, newWidth) + 'px';
+        guidePanel.style.height = Math.max(180, newHeight) + 'px';
+    }
+});
+
+// Stop drag / resize
+document.addEventListener('mouseup', () => {
+    isDragging = false;
+    isResizing = false;
+});
+
+    // ==========================================
+    // Initialization
+    // ==========================================
+    async function init() {
+        try {
+            // Load links from JSON
+            await loadLinks();
+
+            // Load pinned links from localStorage
+            loadPinnedLinks();
+
+            // Loads light/dark theme
+            loadTheme();
+
+            // Display all links initially
+            displayLinks();
+
+            // Setup event listeners
+            setupEventListeners();
+
+            // Show contextual banner if applicable
+            showContextualBanner();
+
+            console.log('Purdue Link Hub initialized successfully');
+        } catch (error) {
+            console.error('Error initializing app:', error);
+            showError('Failed to load resources. Please refresh the page.');
+        }
     }
 
-    savePinnedLinks();
+    // ==========================================
+    // Data Loading
+    // ==========================================
+    async function loadLinks() {
+        try {
+            const response = await fetch('data/links.json');
+            if (!response.ok) {
+                throw new Error('Failed to fetch links');
+            }
+            state.allLinks = await response.json();
+            state.filteredLinks = [...state.allLinks];
+        } catch (error) {
+            console.error('Error loading links:', error);
+            throw error;
+        }
+    }
 
-    // Refresh display if on "My Links" tab
-    if (state.currentCategory === 'My Links') {
+    function loadPinnedLinks() {
+        const stored = localStorage.getItem('pinnedLinks');
+        if (stored) {
+            try {
+                const pinnedArray = JSON.parse(stored);
+                state.pinnedLinks = new Set(pinnedArray);
+            } catch (error) {
+                console.error('Error loading pinned links:', error);
+                state.pinnedLinks = new Set();
+            }
+        }
+    }
+
+    function savePinnedLinks() {
+        const pinnedArray = Array.from(state.pinnedLinks);
+        localStorage.setItem('pinnedLinks', JSON.stringify(pinnedArray));
+    }
+
+    // ==========================================
+    // Event Listeners
+    // ==========================================
+    function setupEventListeners() {
+        // Search input
+        elements.searchInput.addEventListener('input', handleSearch);
+
+        // Category tabs
+        elements.tabButtons.forEach(button => {
+            button.addEventListener('click', handleCategoryChange);
+        });
+
+        // Banner close button
+        if (elements.closeBanner) {
+            elements.closeBanner.addEventListener('click', hideBanner);
+        }
+
+        // Change themes
+        if (elements.themeSwitch) {              
+            elements.themeSwitch.addEventListener(
+                'change',
+                handleThemeToggle
+            );
+        }
+
+    }
+
+    function handleSearch(event) {
+        state.searchQuery = event.target.value.toLowerCase().trim();
         filterAndDisplayLinks();
     }
-}
 
+    function handleCategoryChange(event) {
+        const category = event.target.dataset.category;
+        state.currentCategory = category;
 
-function loadTheme() {
-    const storedTheme = localStorage.getItem('theme');
-    const theme = storedTheme === 'dark' ? 'dark' : 'light';
-    state.theme = theme;
+        // Update active tab
+        elements.tabButtons.forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
 
-    if (theme === 'dark') {
-        document.body.classList.add('dark-theme');
-        if (elements.themeSwitch) elements.themeSwitch.checked = true;
-    } else {
-        document.body.classList.remove('dark-theme');
-        if (elements.themeSwitch) elements.themeSwitch.checked = false;
-    }
-}
-
-function saveTheme() {
-    localStorage.setItem('theme', state.theme);
-}
-
-function handleThemeToggle(event) {
-    state.theme = event.target.checked ? 'dark' : 'light';
-
-    if (state.theme === 'dark') {
-        document.body.classList.add('dark-theme');
-    } else {
-        document.body.classList.remove('dark-theme');
+        filterAndDisplayLinks();
     }
 
-    saveTheme();
-}
+    function handlePinToggle(linkId, button) {
+        if (state.pinnedLinks.has(linkId)) {
+            state.pinnedLinks.delete(linkId);
+            button.classList.remove('pinned');
+            button.textContent = '⭐';
+        } else {
+            state.pinnedLinks.add(linkId);
+            button.classList.add('pinned');
+            button.textContent = '⭐';
+        }
 
-// ==========================================
-// Filtering and Display
-// ==========================================
-function filterAndDisplayLinks() {
-    let links = [...state.allLinks];
+        savePinnedLinks();
 
-    // Filter by category
-    if (state.currentCategory === 'My Links') {
-        links = links.filter(link => state.pinnedLinks.has(link.id));
-    } else if (state.currentCategory !== 'all') {
-        links = links.filter(link => link.category === state.currentCategory);
+        // Refresh display if on "My Links" tab
+        if (state.currentCategory === 'My Links') {
+            filterAndDisplayLinks();
+        }
     }
 
-    // Filter by search query
-    if (state.searchQuery) {
-        links = links.filter(link =>
-            link.name.toLowerCase().includes(state.searchQuery) ||
-            link.description.toLowerCase().includes(state.searchQuery) ||
-            link.category.toLowerCase().includes(state.searchQuery)
-        );
+
+    function loadTheme() {
+        const storedTheme = localStorage.getItem('theme');
+        const theme = storedTheme === 'dark' ? 'dark' : 'light';
+        state.theme = theme;
+
+        if (theme === 'dark') {
+            document.body.classList.add('dark-theme');
+            if (elements.themeSwitch) elements.themeSwitch.checked = true;
+        } else {
+            document.body.classList.remove('dark-theme');
+            if (elements.themeSwitch) elements.themeSwitch.checked = false;
+        }
     }
 
-    state.filteredLinks = links;
-    displayLinks();
-}
-
-function displayLinks() {
-    // Clear grid
-    elements.linksGrid.innerHTML = '';
-
-    // Show empty state if no links
-    if (state.filteredLinks.length === 0) {
-        showEmptyState();
-        return;
+    function saveTheme() {
+        localStorage.setItem('theme', state.theme);
     }
 
-    elements.emptyState.style.display = 'none';
-    elements.linksGrid.style.display = 'grid';
+    function handleThemeToggle(event) {
+        state.theme = event.target.checked ? 'dark' : 'light';
 
-    // Create and append link cards
-    state.filteredLinks.forEach(link => {
-        const card = createLinkCard(link);
-        elements.linksGrid.appendChild(card);
-    });
-}
+        if (state.theme === 'dark') {
+            document.body.classList.add('dark-theme');
+        } else {
+            document.body.classList.remove('dark-theme');
+        }
 
-function showEmptyState() {
-    elements.linksGrid.style.display = 'none';
-    elements.emptyState.style.display = 'block';
-
-    // Customize message based on context
-    const emptyIcon = elements.emptyState.querySelector('.empty-icon');
-    const emptyTitle = elements.emptyState.querySelector('h2');
-    const emptyText = elements.emptyState.querySelector('p');
-
-    if (state.currentCategory === 'My Links' && state.pinnedLinks.size === 0) {
-        emptyIcon.textContent = '⭐';
-        emptyTitle.textContent = 'No pinned links yet';
-        emptyText.textContent = 'Click the star icon on any resource card to add it to My Links for quick access';
-    } else if (state.searchQuery) {
-        emptyIcon.textContent = '🔍';
-        emptyTitle.textContent = 'No resources found';
-        emptyText.textContent = `No results for "${state.searchQuery}". Try a different search term or category`;
-    } else {
-        emptyIcon.textContent = '🔍';
-        emptyTitle.textContent = 'No resources found';
-        emptyText.textContent = 'Try adjusting your search or category filter';
-    }
-}
-
-function createLinkCard(link) {
-    const card = document.createElement('div');
-    card.className = 'link-card';
-    if (state.pinnedLinks.has(link.id)) {
-        card.classList.add('pinned');
+        saveTheme();
     }
 
-    const isPinned = state.pinnedLinks.has(link.id);
+    // ==========================================
+    // Filtering and Display
+    // ==========================================
+    function filterAndDisplayLinks() {
+        let links = [...state.allLinks];
 
-    card.innerHTML = `
-        <div class="link-header">
-            <div class="link-title-section">
-                <span class="link-icon">${link.icon}</span>
-                <h3 class="link-name">${link.name}</h3>
-                <p class="link-description">${link.description}</p>
+        // Filter by category
+        if (state.currentCategory === 'My Links') {
+            links = links.filter(link => state.pinnedLinks.has(link.id));
+        } else if (state.currentCategory !== 'all') {
+            links = links.filter(link => link.category === state.currentCategory);
+        }
+
+        // Filter by search query
+        if (state.searchQuery) {
+            links = links.filter(link =>
+                link.name.toLowerCase().includes(state.searchQuery) ||
+                link.description.toLowerCase().includes(state.searchQuery) ||
+                link.category.toLowerCase().includes(state.searchQuery)
+            );
+        }
+
+        state.filteredLinks = links;
+        displayLinks();
+    }
+
+    function displayLinks() {
+        // Clear grid
+        elements.linksGrid.innerHTML = '';
+
+        // Show empty state if no links
+        if (state.filteredLinks.length === 0) {
+            showEmptyState();
+            return;
+        }
+
+        elements.emptyState.style.display = 'none';
+        elements.linksGrid.style.display = 'grid';
+
+        // Create and append link cards
+        state.filteredLinks.forEach(link => {
+            const card = createLinkCard(link);
+            elements.linksGrid.appendChild(card);
+        });
+    }
+
+    function showEmptyState() {
+        elements.linksGrid.style.display = 'none';
+        elements.emptyState.style.display = 'block';
+
+        // Customize message based on context
+        const emptyIcon = elements.emptyState.querySelector('.empty-icon');
+        const emptyTitle = elements.emptyState.querySelector('h2');
+        const emptyText = elements.emptyState.querySelector('p');
+
+        if (state.currentCategory === 'My Links' && state.pinnedLinks.size === 0) {
+            emptyIcon.textContent = '⭐';
+            emptyTitle.textContent = 'No pinned links yet';
+            emptyText.textContent = 'Click the star icon on any resource card to add it to My Links for quick access';
+        } else if (state.searchQuery) {
+            emptyIcon.textContent = '🔍';
+            emptyTitle.textContent = 'No resources found';
+            emptyText.textContent = `No results for "${state.searchQuery}". Try a different search term or category`;
+        } else {
+            emptyIcon.textContent = '🔍';
+            emptyTitle.textContent = 'No resources found';
+            emptyText.textContent = 'Try adjusting your search or category filter';
+        }
+    }
+
+    function createLinkCard(link) {
+        const card = document.createElement('div');
+        card.className = 'link-card';
+        if (state.pinnedLinks.has(link.id)) {
+            card.classList.add('pinned');
+        }
+
+        const isPinned = state.pinnedLinks.has(link.id);
+
+        card.innerHTML = `
+            <div class="link-header">
+                <div class="link-title-section">
+                    <span class="link-icon">${link.icon}</span>
+                    <h3 class="link-name">${link.name}</h3>
+                    <p class="link-description">${link.description}</p>
+                </div>
+                <button
+                    class="pin-button ${isPinned ? 'pinned' : ''}"
+                    data-link-id="${link.id}"
+                    aria-label="${isPinned ? 'Unpin' : 'Pin'} ${link.name}"
+                    title="${isPinned ? 'Unpin from My Links' : 'Pin to My Links'}"
+                >
+                    ⭐
+                </button>
             </div>
-            <button
-                class="pin-button ${isPinned ? 'pinned' : ''}"
-                data-link-id="${link.id}"
-                aria-label="${isPinned ? 'Unpin' : 'Pin'} ${link.name}"
-                title="${isPinned ? 'Unpin from My Links' : 'Pin to My Links'}"
-            >
-                ⭐
-            </button>
-        </div>
-        <span class="link-category">${link.category}</span>
-    `;
+            <span class="link-category">${link.category}</span>
+        `;
 
-    // Add click handler for the card (open link)
-    card.addEventListener('click', (event) => {
-        // Don't open link if clicking the pin button
-        if (!event.target.classList.contains('pin-button')) {
-            window.open(link.url, '_blank', 'noopener,noreferrer');
+        // Add click handler for the card (open link)
+        // Add click handler for the card (open link OR user guide)
+        card.addEventListener('click', (event) => {
+        // Ignore clicks on the pin button
+        if (event.target.classList.contains('pin-button')) {
+            return;
         }
-    });
-
-    // Add click handler for pin button
-    const pinButton = card.querySelector('.pin-button');
-    pinButton.addEventListener('click', (event) => {
-        event.stopPropagation();
-        handlePinToggle(link.id, pinButton);
-        card.classList.toggle('pinned');
-    });
-
-    return card;
-}
-
-// ==========================================
-// Contextual Banners
-// ==========================================
-function showContextualBanner() {
-    const banner = getContextualBanner();
-
-    if (banner && !isBannerDismissed(banner.id)) {
-        elements.bannerMessage.textContent = banner.message;
-        elements.contextBanner.dataset.bannerId = banner.id;
-        elements.contextBanner.style.display = 'block';
+        if (link.id === 'guide') {
+        // Open our User Guide panel instead of navigating
+        openUserGuide();
+        } else {
+        window.open(link.url, '_blank', 'noopener,noreferrer');
     }
-}
+});
 
-function getContextualBanner() {
-    const now = new Date();
-    const month = now.getMonth(); // 0-11
-    const day = now.getDate();
 
-    // Registration periods (example - adjust dates as needed)
-    // November 1-15: Spring registration
-    if (month === 10 && day >= 1 && day <= 15) {
-        return {
-            id: 'spring-registration',
-            message: '📅 Spring Registration is open! Visit MyPurdue to register for classes.'
-        };
+        // Add click handler for pin button
+        const pinButton = card.querySelector('.pin-button');
+        pinButton.addEventListener('click', (event) => {
+            event.stopPropagation();
+            handlePinToggle(link.id, pinButton);
+            card.classList.toggle('pinned');
+        });
+
+        return card;
     }
 
-    // April 1-15: Fall registration
-    if (month === 3 && day >= 1 && day <= 15) {
-        return {
-            id: 'fall-registration',
-            message: '📅 Fall Registration is open! Visit MyPurdue to register for classes.'
-        };
-    }
+    // ==========================================
+    // Contextual Banners
+    // ==========================================
+    function showContextualBanner() {
+        const banner = getContextualBanner();
 
-    // September: Career fair season
-    if (month === 8) {
-        return {
-            id: 'career-fair',
-            message: '💼 Career Fair season! Check Handshake for upcoming events and opportunities.'
-        };
-    }
-
-    // February: Career fair season
-    if (month === 1) {
-        return {
-            id: 'career-fair-spring',
-            message: '💼 Spring Career Fair season! Check Handshake for upcoming events.'
-        };
-    }
-
-    return null;
-}
-
-function isBannerDismissed(bannerId) {
-    const dismissed = localStorage.getItem('dismissedBanners');
-    if (dismissed) {
-        try {
-            const dismissedArray = JSON.parse(dismissed);
-            return dismissedArray.includes(bannerId);
-        } catch (error) {
-            return false;
+        if (banner && !isBannerDismissed(banner.id)) {
+            elements.bannerMessage.textContent = banner.message;
+            elements.contextBanner.dataset.bannerId = banner.id;
+            elements.contextBanner.style.display = 'block';
         }
     }
-    return false;
-}
 
-function hideBanner() {
-    const bannerId = elements.contextBanner.dataset.bannerId;
-    if (bannerId) {
-        // Save dismissed banner to localStorage
+    function getContextualBanner() {
+        const now = new Date();
+        const month = now.getMonth(); // 0-11
+        const day = now.getDate();
+
+        // Registration periods (example - adjust dates as needed)
+        // November 1-15: Spring registration
+        if (month === 10 && day >= 1 && day <= 15) {
+            return {
+                id: 'spring-registration',
+                message: '📅 Spring Registration is open! Visit MyPurdue to register for classes.'
+            };
+        }
+
+        // April 1-15: Fall registration
+        if (month === 3 && day >= 1 && day <= 15) {
+            return {
+                id: 'fall-registration',
+                message: '📅 Fall Registration is open! Visit MyPurdue to register for classes.'
+            };
+        }
+
+        // September: Career fair season
+        if (month === 8) {
+            return {
+                id: 'career-fair',
+                message: '💼 Career Fair season! Check Handshake for upcoming events and opportunities.'
+            };
+        }
+
+        // February: Career fair season
+        if (month === 1) {
+            return {
+                id: 'career-fair-spring',
+                message: '💼 Spring Career Fair season! Check Handshake for upcoming events.'
+            };
+        }
+
+        return null;
+    }
+
+    function isBannerDismissed(bannerId) {
         const dismissed = localStorage.getItem('dismissedBanners');
-        let dismissedArray = [];
-
         if (dismissed) {
             try {
-                dismissedArray = JSON.parse(dismissed);
+                const dismissedArray = JSON.parse(dismissed);
+                return dismissedArray.includes(bannerId);
             } catch (error) {
-                dismissedArray = [];
+                return false;
+            }
+        }
+        return false;
+    }
+
+    function hideBanner() {
+        const bannerId = elements.contextBanner.dataset.bannerId;
+        if (bannerId) {
+            // Save dismissed banner to localStorage
+            const dismissed = localStorage.getItem('dismissedBanners');
+            let dismissedArray = [];
+
+            if (dismissed) {
+                try {
+                    dismissedArray = JSON.parse(dismissed);
+                } catch (error) {
+                    dismissedArray = [];
+                }
+            }
+
+            if (!dismissedArray.includes(bannerId)) {
+                dismissedArray.push(bannerId);
+                localStorage.setItem('dismissedBanners', JSON.stringify(dismissedArray));
             }
         }
 
-        if (!dismissedArray.includes(bannerId)) {
-            dismissedArray.push(bannerId);
-            localStorage.setItem('dismissedBanners', JSON.stringify(dismissedArray));
-        }
+        elements.contextBanner.style.display = 'none';
     }
 
-    elements.contextBanner.style.display = 'none';
-}
+    // ==========================================
+    // Error Handling
+    // ==========================================
+    function showError(message) {
+        elements.linksGrid.innerHTML = `
+            <div style="text-align: center; padding: 40px; color: #d32f2f;">
+                <h2>⚠️ Error</h2>
+                <p>${message}</p>
+            </div>
+        `;
+    }
 
-// ==========================================
-// Error Handling
-// ==========================================
-function showError(message) {
-    elements.linksGrid.innerHTML = `
-        <div style="text-align: center; padding: 40px; color: #d32f2f;">
-            <h2>⚠️ Error</h2>
-            <p>${message}</p>
-        </div>
-    `;
-}
+    // ==========================================
+    // Start Application
+    // ==========================================
+    document.addEventListener('DOMContentLoaded', init);
 
-// ==========================================
-// Start Application
-// ==========================================
-document.addEventListener('DOMContentLoaded', init);
-
-// Export for potential testing or module usage
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = {
-        state,
-        loadLinks,
-        filterAndDisplayLinks,
-        displayLinks
-    };
-}
+    // Export for potential testing or module usage
+    if (typeof module !== 'undefined' && module.exports) {
+        module.exports = {
+            state,
+            loadLinks,
+            filterAndDisplayLinks,
+            displayLinks
+        };
+    }

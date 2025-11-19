@@ -390,6 +390,80 @@ body {
 }
 
 /* ==========================================
+   User Guide
+   ========================================== */
+
+.guide-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 500;
+}
+
+.guide-card {
+    position: absolute;
+    width: 480px;
+    max-width: 95vw;
+    max-height: 80vh;
+    background: var(--purdue-white);
+    color: var(--purdue-black);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.guide-header {
+    padding: 10px 14px;
+    background: var(--purdue-black);
+    color: var(--purdue-gold);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: move;
+}
+
+.guide-title {
+    font-size: 1rem;
+    margin: 0;
+}
+
+.guide-close {
+    background: transparent;
+    border: none;
+    color: var(--purdue-white);
+    font-size: 1.4rem;
+    cursor: pointer;
+    padding: 0 4px;
+}
+
+.guide-body {
+    padding: 14px 16px;
+    font-size: 0.95rem;
+    overflow: auto;
+}
+
+.guide-body ul {
+    margin-left: 18px;
+    margin-top: 6px;
+}
+
+.guide-resize-handle {
+    width: 16px;
+    height: 16px;
+    position: absolute;
+    right: 4px;
+    bottom: 4px;
+    cursor: se-resize;
+    background: linear-gradient(135deg, transparent 0%, transparent 50%, var(--purdue-gold) 51%, var(--purdue-gold) 100%);
+}
+
+
+/* ==========================================
    Footer
    ========================================== */
 .footer {
@@ -522,8 +596,6 @@ body {
     }
 }
 
-
-
 /* ==========================================
    Dark mode
    ========================================== */
@@ -573,6 +645,21 @@ body.dark-theme .tab-button.active {
     border-color: var(--purdue-gold);
 }
 
+body.dark-theme .guide-card {
+    background: #181818;
+    color: var(--purdue-gray);
+}
+
+body.dark-theme .guide-header {
+    background: #050505;
+    color: var(--purdue-gold);
+}
+
+body.dark-theme .guide-body {
+    color: var(--purdue-gray);
+}
+
 body.dark-theme .footer {
     background: #050505;
 }
+
