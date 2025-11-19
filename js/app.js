@@ -110,11 +110,13 @@ document.addEventListener('mousemove', (e) => {
         guidePanel.style.left = (e.clientX - dragOffsetX) + 'px';
         guidePanel.style.top  = (e.clientY - dragOffsetY) + 'px';
     } else if (isResizing && guidePanel) {
-        const newWidth  = startWidth  + (e.clientX - startX);
-        const newHeight = startHeight + (e.clientY - startY);
-        guidePanel.style.width  = Math.max(260, newWidth) + 'px';
-        guidePanel.style.height = Math.max(180, newHeight) + 'px';
-    }
+    const newWidth  = startWidth  + (e.clientX - startX);
+    const newHeight = startHeight + (e.clientY - startY);
+    guidePanel.style.width  = Math.max(260, newWidth) + 'px';
+    guidePanel.style.height = Math.max(180, newHeight) + 'px';
+    guidePanel.style.setProperty('--guide-text-scale', Math.min(1.4, Math.max(1, newWidth / 480)));
+}
+
 });
 
 // Stop drag / resize
@@ -142,6 +144,9 @@ document.addEventListener('mouseup', () => {
 
             // Setup event listeners
             setupEventListeners();
+
+            // Setup User Guide dropdown sections
+            setupGuideSections();
 
             // Show contextual banner if applicable
             showContextualBanner();
@@ -248,6 +253,22 @@ document.addEventListener('mouseup', () => {
         if (state.currentCategory === 'My Links') {
             filterAndDisplayLinks();
         }
+    }
+
+    function setupGuideSections() {
+    const items = document.querySelectorAll('.guide-item');  
+    
+    items.forEach(item => {
+        const toggle  = item.querySelector('.guide-toggle');
+        const content = item.querySelector('.guide-content');
+
+        if (!toggle || !content) return;
+
+        toggle.addEventListener('click', () => {
+            const isOpen = content.classList.toggle('open');
+            toggle.classList.toggle('open', isOpen);
+        });
+    });
     }
 
 

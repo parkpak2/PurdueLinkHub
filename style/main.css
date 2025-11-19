@@ -393,13 +393,16 @@ body {
    User Guide
    ========================================== */
 
+
+
 .guide-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.35);
+    background: transparent;
     display: flex;
     justify-content: center;
     align-items: center;
+    pointer-events: none;
     z-index: 500;
 }
 
@@ -415,6 +418,8 @@ body {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    pointer-events: auto;
+    font-size: calc(0.95rem * var(--guide-text-scale, 1));
 }
 
 .guide-header {
@@ -447,9 +452,51 @@ body {
     overflow: auto;
 }
 
-.guide-body ul {
-    margin-left: 18px;
-    margin-top: 6px;
+.guide-item {
+    border-bottom: 1px solid var(--purdue-gray);
+    padding: 6px 0;
+}
+
+.guide-item.open {
+    border: 2px solid var(--purdue-gold);
+    padding: 8px 10px;
+}
+
+.guide-toggle {
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: none;
+    padding: 8px 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.guide-toggle::after {
+    content: '▾';
+    font-size: 0.8rem;
+    margin-left: 8px;
+    transition: transform 0.2s ease;
+}
+
+.guide-toggle.open::after {
+    transform: rotate(180deg);
+}
+
+.guide-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease;
+    font-size: 0.9rem;
+    padding-right: 2px;
+}
+
+.guide-content.open {
+    max-height: 200px; /* enough space for a short paragraph */
 }
 
 .guide-resize-handle {
