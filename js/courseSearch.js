@@ -29,7 +29,7 @@ const courseElements = {
 // ==========================================
 // API Configuration
 // ==========================================
-const API_BASE = 'https://api.purdue.io/odata';
+const API_BASE = 'http://api.purdue.io/odata';
 
 // ==========================================
 // Initialization
@@ -91,7 +91,7 @@ async function loadTerms() {
         }
     } catch (error) {
         console.error('Error loading terms:', error);
-        showCourseError('Unable to load term data. Using default term.');
+        showCourseError('Unable to load term data. Make sure the backend server is running.');
     }
 }
 
