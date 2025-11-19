@@ -29,7 +29,7 @@ const courseElements = {
 // ==========================================
 // API Configuration
 // ==========================================
-const API_BASE = 'http://localhost:3000/api/purdue';
+const API_BASE = 'http://api.purdue.io/odata';
 
 // ==========================================
 // Initialization
