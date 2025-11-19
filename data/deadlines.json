@@ -1,0 +1,116 @@
+[
+  {
+    "id": "spring25_registration_start",
+    "term": "Spring 2025",
+    "type": "Registration",
+    "title": "Spring 2025 Registration Opens",
+    "date": "2024-11-05",
+    "endDate": "2024-11-20",
+    "description": "Registration for Spring 2025 semester begins",
+    "priority": "high",
+    "icon": "📝",
+    "url": "https://www.purdue.edu/registrar/calendars/index.html"
+  },
+  {
+    "id": "spring25_tuition_due",
+    "term": "Spring 2025",
+    "type": "Payment",
+    "title": "Spring 2025 Tuition Due",
+    "date": "2025-01-10",
+    "description": "Last day to pay tuition and fees without late charge",
+    "priority": "high",
+    "icon": "💰",
+    "url": "https://www.purdue.edu/bursar/"
+  },
+  {
+    "id": "spring25_add_drop",
+    "term": "Spring 2025",
+    "type": "Add/Drop",
+    "title": "Last Day to Add/Drop without W",
+    "date": "2025-01-20",
+    "description": "Last day to drop a course without a 'W' grade",
+    "priority": "medium",
+    "icon": "📋",
+    "url": "https://www.purdue.edu/registrar/"
+  },
+  {
+    "id": "spring25_withdraw",
+    "term": "Spring 2025",
+    "type": "Withdraw",
+    "title": "Last Day to Withdraw",
+    "date": "2025-03-15",
+    "description": "Last day to withdraw from a course with a 'W' grade",
+    "priority": "medium",
+    "icon": "🚪",
+    "url": "https://www.purdue.edu/registrar/"
+  },
+  {
+    "id": "spring25_finals",
+    "term": "Spring 2025",
+    "type": "Finals",
+    "title": "Finals Week",
+    "date": "2025-04-28",
+    "endDate": "2025-05-03",
+    "description": "Final examinations week",
+    "priority": "high",
+    "icon": "📝",
+    "url": "https://www.purdue.edu/registrar/calendars/index.html"
+  },
+  {
+    "id": "fall25_registration_start",
+    "term": "Fall 2025",
+    "type": "Registration",
+    "title": "Fall 2025 Registration Opens",
+    "date": "2025-04-01",
+    "endDate": "2025-04-15",
+    "description": "Registration for Fall 2025 semester begins",
+    "priority": "high",
+    "icon": "📝",
+    "url": "https://www.purdue.edu/registrar/calendars/index.html"
+  },
+  {
+    "id": "fall25_tuition_due",
+    "term": "Fall 2025",
+    "type": "Payment",
+    "title": "Fall 2025 Tuition Due",
+    "date": "2025-08-15",
+    "description": "Last day to pay tuition and fees without late charge",
+    "priority": "high",
+    "icon": "💰",
+    "url": "https://www.purdue.edu/bursar/"
+  },
+  {
+    "id": "fall25_add_drop",
+    "term": "Fall 2025",
+    "type": "Add/Drop",
+    "title": "Last Day to Add/Drop without W",
+    "date": "2025-08-29",
+    "description": "Last day to drop a course without a 'W' grade",
+    "priority": "medium",
+    "icon": "📋",
+    "url": "https://www.purdue.edu/registrar/"
+  },
+  {
+    "id": "fall25_withdraw",
+    "term": "Fall 2025",
+    "type": "Withdraw",
+    "title": "Last Day to Withdraw",
+    "date": "2025-10-24",
+    "description": "Last day to withdraw from a course with a 'W' grade",
+    "priority": "medium",
+    "icon": "🚪",
+    "url": "https://www.purdue.edu/registrar/"
+  },
+  {
+    "id": "fall25_finals",
+    "term": "Fall 2025",
+    "type": "Finals",
+    "title": "Finals Week",
+    "date": "2025-12-08",
+    "endDate": "2025-12-13",
+    "description": "Final examinations week",
+    "priority": "high",
+    "icon": "📝",
+    "url": "https://www.purdue.edu/registrar/calendars/index.html"
+  }
+]

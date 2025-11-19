@@ -289,6 +289,9 @@ function createLinkCard(link) {
     card.addEventListener('click', (event) => {
         // Don't open link if clicking the pin button
         if (!event.target.classList.contains('pin-button')) {
+            // Log usage to server
+            logLinkUsage(link);
+
             window.open(link.url, '_blank', 'noopener,noreferrer');
         }
     });
@@ -393,6 +396,33 @@ function hideBanner() {
     }
 
     elements.contextBanner.style.display = 'none';
+}
+
+// ==========================================
+// Usage Tracking
+// ==========================================
+async function logLinkUsage(link) {
+    try {
+        // Don't block the UI - fire and forget
+        const response = await fetch('http://localhost:3000/api/usage', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                linkId: link.id,
+                name: link.name,
+                category: link.category
+            })
+        });
+
+        if (response.ok) {
+            console.log('Usage logged:', link.name);
+        }
+    } catch (error) {
+        // Silently fail - don't disrupt user experience
+        console.log('Usage logging unavailable (server might be offline)');
+    }
 }
 
 // ==========================================
