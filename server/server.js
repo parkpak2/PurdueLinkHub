@@ -131,6 +131,47 @@ function aggregateUsage(log) {
 }
 
 // ==========================================
+// Purdue.io API Proxy
+// ==========================================
+
+/**
+ * GET /api/purdue/*
+ * Proxy requests to Purdue.io API to avoid CORS issues
+ */
+app.get('/api/purdue/*', async (req, res) => {
+    try {
+        // Extract the path after /api/purdue/
+        const purduePath = req.path.replace('/api/purdue/', '');
+
+        // Reconstruct query string
+        const queryString = Object.keys(req.query)
+            .map(key => `${key}=${encodeURIComponent(req.query[key])}`)
+            .join('&');
+
+        const purdueUrl = `https://api.purdue.io/odata/${purduePath}${queryString ? '?' + queryString : ''}`;
+
+        console.log('Proxying to Purdue.io:', purdueUrl);
+
+        // Use dynamic import for node-fetch
+        const fetch = (await import('node-fetch')).default;
+        const response = await fetch(purdueUrl);
+
+        if (!response.ok) {
+            throw new Error(`Purdue.io API returned ${response.status}`);
+        }
+
+        const data = await response.json();
+        res.json(data);
+    } catch (error) {
+        console.error('Error proxying to Purdue.io:', error);
+        res.status(500).json({
+            error: 'Failed to fetch data from Purdue.io',
+            message: error.message
+        });
+    }
+});
+
+// ==========================================
 // API Routes
 // ==========================================
 
