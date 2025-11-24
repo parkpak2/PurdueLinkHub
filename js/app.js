@@ -400,20 +400,19 @@ document.addEventListener('mouseup', () => {
             <span class="link-category">${link.category}</span>
         `;
 
-        // Add click handler for the card (open link)
         // Add click handler for the card (open link OR user guide)
         card.addEventListener('click', (event) => {
-        // Ignore clicks on the pin button
-        if (event.target.classList.contains('pin-button')) {
-            return;
-        }
-        if (link.id === 'guide') {
-        // Open our User Guide panel instead of navigating
-        openUserGuide();
-        } else {
-        window.open(link.url, '_blank', 'noopener,noreferrer');
-    }
-});
+            // Don't open link if clicking the pin button
+            if (event.target.classList.contains('pin-button')) { return;
+            }
+            // Log usage to server
+            logLinkUsage(link);
+            if (link.id === 'guide') {    
+            openUserGuide();  
+            } else {    
+                window.open(link.url, '_blank', 'noopener,noreferrer');
+            }
+        });
 
 
         // Add click handler for pin button
@@ -517,23 +516,50 @@ document.addEventListener('mouseup', () => {
 
         elements.contextBanner.style.display = 'none';
     }
-
-    // ==========================================
-    // Error Handling
-    // ==========================================
-    function showError(message) {
-        elements.linksGrid.innerHTML = `
-            <div style="text-align: center; padding: 40px; color: #d32f2f;">
-                <h2>⚠️ Error</h2>
-                <p>${message}</p>
-            </div>
-        `;
-    }
-
+    
     // ==========================================
     // Start Application
     // ==========================================
     document.addEventListener('DOMContentLoaded', init);
+
+// ==========================================
+// Usage Tracking
+// ==========================================
+async function logLinkUsage(link) {
+    try {
+        // Don't block the UI - fire and forget
+        const response = await fetch('http://localhost:3000/api/usage', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                linkId: link.id,
+                name: link.name,
+                category: link.category
+            })
+        });
+
+        if (response.ok) {
+            console.log('Usage logged:', link.name);
+        }
+    } catch (error) {
+        // Silently fail - don't disrupt user experience
+        console.log('Usage logging unavailable (server might be offline)');
+    }
+}
+
+// ==========================================
+// Error Handling
+// ==========================================
+function showError(message) {
+    elements.linksGrid.innerHTML = `
+        <div style="text-align: center; padding: 40px; color: #d32f2f;">
+            <h2>⚠️ Error</h2>
+            <p>${message}</p>
+        </div>
+    `;
+}
 
     // Export for potential testing or module usage
     if (typeof module !== 'undefined' && module.exports) {

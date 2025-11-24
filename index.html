@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -33,6 +33,7 @@
     <meta name="theme-color" content="#000000">
 
     <link rel="stylesheet" href="style/main.css">
+    <link rel="stylesheet" href="style/schedule.css">
 </head>
 <body>
     <!-- Header -->
@@ -71,6 +72,59 @@
                 <p id="bannerMessage"></p>
                 <button class="banner-close" id="closeBanner" aria-label="Close banner">&times;</button>
             </div>
+
+            <!-- Course Planner Section -->
+            <section class="course-planner" id="coursePlanner">
+                <div class="course-planner-header">
+                    <h2 class="course-planner-title">
+                        📚 Course Planner
+                        <span class="course-planner-badge" id="coursePlannerBadge" style="display: none;">REGISTRATION WEEK</span>
+                    </h2>
+                </div>
+
+                <!-- Search Bar -->
+                <div class="course-search-container">
+                    <input
+                        type="text"
+                        id="courseSearchInput"
+                        class="course-search-input"
+                        placeholder="Search courses (e.g., CS 180, Calculus, MA 261)..."
+                        aria-label="Search courses"
+                    >
+                    <select id="termSelect" class="term-select" aria-label="Select term">
+                        <option>Loading terms...</option>
+                    </select>
+                    <button id="courseSearchButton" class="course-search-button">
+                        Search
+                    </button>
+                </div>
+
+                <!-- Loading Indicator -->
+                <div id="searchLoading" class="search-loading" style="display: none;">
+                    Searching courses
+                </div>
+
+                <!-- Search Results -->
+                <div id="courseResults" class="course-results">
+                    <!-- Results will be dynamically inserted here -->
+                </div>
+
+                <!-- Schedule Display -->
+                <div class="schedule-section" id="scheduleSection" style="display: none;">
+                    <div class="schedule-header">
+                        <h3 class="schedule-title">My Schedule</h3>
+                        <div class="schedule-actions">
+                            <button id="clearScheduleBtn" class="view-sections-btn">Clear Schedule</button>
+                        </div>
+                    </div>
+                    <div id="scheduleGrid" class="schedule-grid">
+                        <div class="schedule-empty">
+                            <div class="schedule-empty-icon">📅</div>
+                            <p>Add sections to see your schedule here</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
             <!-- Category Tabs -->
             <nav class="category-tabs">
@@ -157,5 +211,28 @@
     </footer>
 
     <script src="js/app.js"></script>
+    <script src="js/trending.js"></script>
+    <script src="js/deadlines.js"></script>
+    <script src="js/schedule.js"></script>
+    <script src="js/courseSearch.js"></script>
+    <script>
+        // Initialize all systems after DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize trending first (requires server)
+            if (window.Trending) {
+                window.Trending.init();
+            }
+
+            // Initialize deadlines (affects banner and course planner highlighting)
+            if (window.Deadlines) {
+                window.Deadlines.init();
+            }
+
+            // Then initialize course search
+            if (window.CourseSearch) {
+                window.CourseSearch.init();
+            }
+        });
+    </script>
 </body>
 </html>
