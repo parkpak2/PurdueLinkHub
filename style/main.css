@@ -117,9 +117,6 @@ body {
     color: var(--purdue-white);
     padding: 20px 0;
     box-shadow: var(--shadow-md);
-    position: sticky;
-    top: 0;
-    z-index: 100;
 }
 
 .header-content {
