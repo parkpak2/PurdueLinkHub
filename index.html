@@ -4,27 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Primary Meta Tags -->
-    <title>Purdue Link Hub - Your Centralized Purdue Resources Portal</title>
-    <meta name="title" content="Purdue Link Hub - Your Centralized Purdue Resources Portal">
+    <title>Boiler Link Hub - Your Centralized Purdue Resources Portal</title>
     <meta name="description" content="Access Brightspace, MyPurdue, Handshake and all essential Purdue sites in one place. No more Google searches - instant one-click access to course registration, assignments, jobs and more!">
-    <meta name="keywords" content="Purdue University, Brightspace, MyPurdue, Handshake, course registration, student portal, Purdue links, Boilermakers">
-    <meta name="author" content="Purdue Link Hub Team">
-
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://purduehub.com/">
-    <meta property="og:title" content="Purdue Link Hub - Your Centralized Purdue Resources Portal">
-    <meta property="og:description" content="Access Brightspace, MyPurdue, Handshake and all essential Purdue sites in one place. No more Google searches - instant one-click access!">
-    <meta property="og:image" content="https://purduehub.com/og-image.png">
-    <meta property="og:locale" content="en_US">
-
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://purduehub.com/">
-    <meta property="twitter:title" content="Purdue Link Hub - Your Centralized Purdue Resources Portal">
-    <meta property="twitter:description" content="Access Brightspace, MyPurdue, Handshake and all essential Purdue sites in one place. No more Google searches - instant one-click access!">
-    <meta property="twitter:image" content="https://purduehub.com/og-image.png">
+    <meta name="author" content="Boiler Link Hub Team">
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔗</text></svg>">
@@ -34,6 +16,9 @@
 
     <link rel="stylesheet" href="style/main.css">
     <link rel="stylesheet" href="style/schedule.css">
+
+    <!-- HTML2Canvas for schedule export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
     <!-- Header -->
@@ -49,9 +34,9 @@
                     </label>
                 </div>
                 <div class="logo-section">
-                    <h1 class="logo">🔗 Purdue Link Hub</h1>
+                    <h1 class="logo">🔗 Boiler Link Hub</h1>
                 </div>
-                <div class="search-section">    
+                <div class="search-section">
                     <input
                         type="text"
                         id="searchInput"
@@ -59,10 +44,53 @@
                         placeholder="Search resources..."
                         aria-label="Search resources"
                     >
+                    <button class="search-help-btn" id="searchHelpBtn" aria-label="Search tips">
+                        <span class="help-icon">?</span>
+                    </button>
                 </div>
             </div>
         </div>
     </header>
+
+    <!-- Search Tips Modal -->
+    <div class="search-tips-overlay" id="searchTipsOverlay" style="display: none;">
+        <div class="search-tips-modal">
+            <div class="search-tips-header">
+                <h3>🔍 Search Tips</h3>
+                <button class="close-tips-btn" id="closeTipsBtn" aria-label="Close">&times;</button>
+            </div>
+            <div class="search-tips-content">
+                <div class="tip-section">
+                    <h4>⚡ Quick Shortcuts</h4>
+                    <ul>
+                        <li><kbd>/</kbd> - Focus search bar instantly</li>
+                        <li><kbd>ESC</kbd> - Clear search</li>
+                        <li><kbd>Enter</kbd> - Open first result</li>
+                        <li><kbd>1-9</kbd> - Open specific result (1st, 2nd, etc.)</li>
+                    </ul>
+                </div>
+                <div class="tip-section">
+                    <h4>🎯 Smart Search</h4>
+                    <ul>
+                        <li><strong>Use shortcuts:</strong> Type "bs" for Brightspace, "mp" for MyPurdue</li>
+                        <li><strong>Typo-friendly:</strong> "birghtsapce" will still find Brightspace</li>
+                        <li><strong>Search anything:</strong> Try "advisor", "jobs", "grades", or "parking"</li>
+                    </ul>
+                </div>
+                <div class="tip-section">
+                    <h4>📚 Popular Shortcuts</h4>
+                    <div class="shortcut-grid">
+                        <div class="shortcut-item"><code>bs</code> → Brightspace</div>
+                        <div class="shortcut-item"><code>mp</code> → MyPurdue</div>
+                        <div class="shortcut-item"><code>hs</code> → Handshake</div>
+                        <div class="shortcut-item"><code>bc</code> → BoilerConnect</div>
+                        <div class="shortcut-item"><code>mpp</code> → MyPurduePlan</div>
+                        <div class="shortcut-item"><code>codo</code> → Change Major</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Main Content -->
     <main class="main-content">
@@ -88,7 +116,7 @@
                         type="text"
                         id="courseSearchInput"
                         class="course-search-input"
-                        placeholder="Search courses (e.g., CS 180, Calculus, MA 261)..."
+                        placeholder="Search courses (e.g., TECH 12000, CNIT 17600, CNIT)..."
                         aria-label="Search courses"
                     >
                     <select id="termSelect" class="term-select" aria-label="Select term">
@@ -112,8 +140,12 @@
                 <!-- Schedule Display -->
                 <div class="schedule-section" id="scheduleSection" style="display: none;">
                     <div class="schedule-header">
-                        <h3 class="schedule-title">My Schedule</h3>
+                        <div class="schedule-title-group">
+                            <h3 class="schedule-title">My Schedule</h3>
+                            <span class="credit-counter" id="creditCounter">0 Credits</span>
+                        </div>
                         <div class="schedule-actions">
+                            <button id="exportScheduleBtn" class="view-sections-btn export-btn">📸 Export Image</button>
                             <button id="clearScheduleBtn" class="view-sections-btn">Clear Schedule</button>
                         </div>
                     </div>
@@ -153,7 +185,7 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2024 Purdue Link Hub | Boiler Up! 🚂</p>
+            <p>&copy; 2025 Boiler Link Hub | Boiler Up! 🚂</p>
             <p class="footer-note">Unofficial student project - Not affiliated with Purdue University</p>
         </div>
     </footer>

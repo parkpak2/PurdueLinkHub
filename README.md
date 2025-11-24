@@ -1,14 +1,14 @@
-# 🔗 Purdue Link Hub
+# 🔗 Boiler Link Hub
 
 A centralized, intelligent web platform for Purdue University students featuring course planning, real-time trending analytics, and one-click access to essential university resources.
 
-![Purdue Colors](https://img.shields.io/badge/Purdue-Old%20Gold%20%26%20Black-CEB888?style=for-the-badge)
+![Purdue Colors](https://img.shields.io/badge/Boilermakers-Old%20Gold%20%26%20Black-CEB888?style=for-the-badge)
 ![Node.js](https://img.shields.io/badge/Node.js-Express-green?style=for-the-badge)
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-yellow?style=for-the-badge)
 
 ## 🎯 Overview
 
-Purdue Link Hub goes beyond simple bookmarks by providing intelligent features that Google can't replicate:
+Boiler Link Hub goes beyond simple bookmarks by providing intelligent features that Google can't replicate:
 - **Smart Course Planning**: Search Purdue courses, build visual schedules, detect time conflicts
 - **Trending Analytics**: See what links Purdue students are using right now
 - **Academic Calendar**: Never miss registration, add/drop, or tuition deadlines
@@ -19,10 +19,13 @@ Purdue Link Hub goes beyond simple bookmarks by providing intelligent features t
 ### 🔥 NEW: Advanced Features
 
 #### 📚 Course Planner (Purdue.io Integration)
-- **Real-time Course Search**: Search all Purdue courses using official Purdue.io API
+- **Real-time Course Search**: Search all Purdue courses using official Purdue.io API with on-demand data fetching
+- **Complete Location Data**: Building names and room numbers for all course sections
 - **Section Details**: View meeting times, locations, instructors, and seat availability
-- **Visual Schedule Builder**: Drag-and-drop weekly calendar (Monday-Friday, 7 AM - 10 PM)
+- **Visual Schedule Builder**: Interactive weekly calendar (Monday-Friday, 7 AM - 10 PM)
+- **Optimized Display**: All course info (code, type, location, time) visible even in 50-minute classes
 - **Conflict Detection**: Automatic detection and highlighting of time conflicts
+- **Theme-Aware Export**: Export schedule as PNG image matching your current theme (light/dark)
 - **Persistent Storage**: Your schedule saves automatically to localStorage
 
 #### 🔥 Trending Now
@@ -55,31 +58,29 @@ Purdue Link Hub goes beyond simple bookmarks by providing intelligent features t
 - **Node.js** (v14+) - Only required for Trending feature
 - **Modern Web Browser** - Chrome, Firefox, Safari, or Edge
 
-### Option 1: Full Experience (With Backend)
+### Recommended: Simplified Setup (All Features)
 
 ```bash
 # Clone the repository
-git clone https://github.com/parkpak2/PurdueLinkHub.git
-cd PurdueLinkHub
+git clone https://github.com/parkpak2/BoilerLinkHub.git
+cd BoilerLinkHub
 
-# Install and start backend server (for Trending feature)
+# Install and start backend server
 cd server
 npm install
 npm start
 
-# In a new terminal, start frontend
-cd ..
-python3 -m http.server 8000
-
-# Visit http://localhost:8000
+# Visit http://localhost:3000
 ```
 
-### Option 2: Frontend Only (Without Trending)
+**Note**: The backend server serves both the API and the frontend. You only need one command!
+
+### Alternative: Frontend Only (Without Trending)
 
 ```bash
 # Clone and open
-git clone https://github.com/parkpak2/PurdueLinkHub.git
-cd PurdueLinkHub
+git clone https://github.com/parkpak2/BoilerLinkHub.git
+cd BoilerLinkHub
 
 # Start local server
 python3 -m http.server 8000
@@ -92,7 +93,7 @@ python3 -m http.server 8000
 ## 📁 Project Structure
 
 ```
-PurdueLinkHub/
+BoilerLinkHub/
 ├── index.html                  # Main HTML structure
 ├── style/
 │   ├── main.css               # Core styling
@@ -120,9 +121,10 @@ PurdueLinkHub/
 1. Navigate to the **Course Planner** section
 2. Select a term (e.g., Spring 2025)
 3. Search for courses (e.g., "CS 180", "Calculus")
-4. Click "View Sections" to see available sections
+4. Click "View Sections" to see available sections (includes building + room locations)
 5. Click "Add to Schedule" to build your schedule
 6. Visual conflicts are highlighted in red automatically
+7. Export your schedule as an image with the **Export Image** button (matches current theme)
 
 ### Trending Links
 - Appears automatically at the top when data is available
@@ -168,6 +170,37 @@ Get trending links by time range
   ]
 }
 ```
+
+#### `GET /api/course-sections/:courseId/:termId`
+Get all sections for a specific course and term with enriched data
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "Id": "section-guid",
+      "Type": "Lecture",
+      "Meetings": [
+        {
+          "DaysOfWeek": "MoWeFr",
+          "StartTime": "08:30:00",
+          "EndTime": "09:20:00",
+          "Instructor": { "Name": "John Doe" },
+          "Room": {
+            "Number": "101",
+            "Building": { "ShortCode": "WTHR", "Name": "Weatherill Hall" }
+          }
+        }
+      ]
+    }
+  ],
+  "classCount": 1,
+  "sectionCount": 1,
+  "loadTime": "2.69"
+}
+```
+
+**Performance**: Instant server startup (0s), ~2-3 seconds per course search with real-time Purdue.io API data
 
 #### `GET /api/stats`
 Get overall usage statistics
@@ -222,13 +255,15 @@ Edit `style/main.css` or `style/schedule.css`. Brand colors:
 
 ### Manual Testing Checklist
 - [ ] All resource links open correctly
-- [ ] Course search returns Purdue courses
-- [ ] Schedule builder shows conflicts
+- [ ] Course search returns Purdue courses with location data (building + room)
+- [ ] Schedule builder shows conflicts and displays all info in short classes
+- [ ] Export schedule image matches current theme (light/dark)
 - [ ] Trending card appears (with backend)
 - [ ] Deadlines show within 14 days
 - [ ] Pin/unpin saves to localStorage
 - [ ] Responsive on mobile/tablet/desktop
 - [ ] Dark mode works properly
+- [ ] Server starts instantly (0 seconds)
 
 ### Browser Compatibility
 Tested on:
@@ -239,7 +274,7 @@ Tested on:
 
 ## 🎯 Key Differentiators vs Google
 
-| Feature | Google | Purdue Link Hub |
+| Feature | Google | Boiler Link Hub |
 |---------|--------|-----------------|
 | Course Search | ❌ Generic results | ✅ Real-time Purdue.io API |
 | Visual Schedule | ❌ No | ✅ Conflict detection |

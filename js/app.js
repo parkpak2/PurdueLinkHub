@@ -112,13 +112,44 @@ function setupEventListeners() {
     }
 
     // Change themes
-    if (elements.themeSwitch) {              
+    if (elements.themeSwitch) {
         elements.themeSwitch.addEventListener(
             'change',
             handleThemeToggle
         );
     }
 
+    // Keyboard shortcuts
+    document.addEventListener('keydown', handleKeyboardShortcut);
+
+    // Search help modal
+    const searchHelpBtn = document.getElementById('searchHelpBtn');
+    const searchTipsOverlay = document.getElementById('searchTipsOverlay');
+    const closeTipsBtn = document.getElementById('closeTipsBtn');
+
+    if (searchHelpBtn && searchTipsOverlay && closeTipsBtn) {
+        searchHelpBtn.addEventListener('click', () => {
+            searchTipsOverlay.style.display = 'flex';
+        });
+
+        closeTipsBtn.addEventListener('click', () => {
+            searchTipsOverlay.style.display = 'none';
+        });
+
+        // Close modal when clicking outside
+        searchTipsOverlay.addEventListener('click', (event) => {
+            if (event.target === searchTipsOverlay) {
+                searchTipsOverlay.style.display = 'none';
+            }
+        });
+
+        // Close modal with ESC key
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && searchTipsOverlay.style.display === 'flex') {
+                searchTipsOverlay.style.display = 'none';
+            }
+        });
+    }
 }
 
 function handleSearch(event) {
@@ -200,17 +231,149 @@ function filterAndDisplayLinks() {
         links = links.filter(link => link.category === state.currentCategory);
     }
 
-    // Filter by search query
+    // Filter by search query with improved scoring
     if (state.searchQuery) {
-        links = links.filter(link =>
-            link.name.toLowerCase().includes(state.searchQuery) ||
-            link.description.toLowerCase().includes(state.searchQuery) ||
-            link.category.toLowerCase().includes(state.searchQuery)
-        );
+        // Score and filter links
+        const scoredLinks = links.map(link => ({
+            link,
+            score: calculateSearchScore(link, state.searchQuery)
+        }))
+        .filter(item => item.score > 0)
+        .sort((a, b) => b.score - a.score);
+
+        links = scoredLinks.map(item => item.link);
     }
 
     state.filteredLinks = links;
     displayLinks();
+}
+
+// ==========================================
+// Advanced Search Functions
+// ==========================================
+
+/**
+ * Calculate search score for a link (higher = better match)
+ */
+function calculateSearchScore(link, query) {
+    const lowerQuery = query.toLowerCase();
+    const lowerName = link.name.toLowerCase();
+    const lowerDesc = link.description.toLowerCase();
+    const lowerCategory = link.category.toLowerCase();
+    const aliases = link.aliases || [];
+
+    let score = 0;
+
+    // Exact name match (highest priority)
+    if (lowerName === lowerQuery) {
+        score += 1000;
+    }
+
+    // Name starts with query
+    if (lowerName.startsWith(lowerQuery)) {
+        score += 500;
+    }
+
+    // Exact alias match
+    for (const alias of aliases) {
+        if (alias.toLowerCase() === lowerQuery) {
+            score += 800;
+            break;
+        }
+    }
+
+    // Alias starts with query
+    for (const alias of aliases) {
+        if (alias.toLowerCase().startsWith(lowerQuery)) {
+            score += 400;
+            break;
+        }
+    }
+
+    // Name contains query
+    if (lowerName.includes(lowerQuery)) {
+        score += 300;
+    }
+
+    // Alias contains query
+    for (const alias of aliases) {
+        if (alias.toLowerCase().includes(lowerQuery)) {
+            score += 200;
+            break;
+        }
+    }
+
+    // Description contains query
+    if (lowerDesc.includes(lowerQuery)) {
+        score += 100;
+    }
+
+    // Category match
+    if (lowerCategory.includes(lowerQuery)) {
+        score += 50;
+    }
+
+    // Fuzzy matching (typo tolerance)
+    if (score === 0) {
+        const fuzzyScore = getFuzzyScore(lowerName, lowerQuery);
+        if (fuzzyScore > 0.7) {
+            score += Math.floor(fuzzyScore * 150);
+        }
+
+        // Check aliases with fuzzy matching
+        for (const alias of aliases) {
+            const aliasFuzzyScore = getFuzzyScore(alias.toLowerCase(), lowerQuery);
+            if (aliasFuzzyScore > 0.7) {
+                score += Math.floor(aliasFuzzyScore * 120);
+                break;
+            }
+        }
+    }
+
+    return score;
+}
+
+/**
+ * Calculate fuzzy matching score (Levenshtein distance based)
+ * Returns a score between 0 and 1 (1 = perfect match)
+ */
+function getFuzzyScore(str1, str2) {
+    const maxLength = Math.max(str1.length, str2.length);
+    if (maxLength === 0) return 1.0;
+
+    const distance = getLevenshteinDistance(str1, str2);
+    return 1.0 - (distance / maxLength);
+}
+
+/**
+ * Calculate Levenshtein distance (edit distance) between two strings
+ */
+function getLevenshteinDistance(str1, str2) {
+    const matrix = [];
+
+    for (let i = 0; i <= str2.length; i++) {
+        matrix[i] = [i];
+    }
+
+    for (let j = 0; j <= str1.length; j++) {
+        matrix[0][j] = j;
+    }
+
+    for (let i = 1; i <= str2.length; i++) {
+        for (let j = 1; j <= str1.length; j++) {
+            if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
+                matrix[i][j] = matrix[i - 1][j - 1];
+            } else {
+                matrix[i][j] = Math.min(
+                    matrix[i - 1][j - 1] + 1, // substitution
+                    matrix[i][j - 1] + 1,     // insertion
+                    matrix[i - 1][j] + 1      // deletion
+                );
+            }
+        }
+    }
+
+    return matrix[str2.length][str1.length];
 }
 
 function displayLinks() {
@@ -396,6 +559,55 @@ function hideBanner() {
     }
 
     elements.contextBanner.style.display = 'none';
+}
+
+// ==========================================
+// Keyboard Shortcuts
+// ==========================================
+function handleKeyboardShortcut(event) {
+    // Don't trigger shortcuts when typing in input fields (except for search input with specific keys)
+    const isInputField = event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA';
+
+    // "/" key - Focus search bar
+    if (event.key === '/' && !isInputField) {
+        event.preventDefault();
+        elements.searchInput.focus();
+        elements.searchInput.select();
+        return;
+    }
+
+    // ESC key - Clear search
+    if (event.key === 'Escape' && event.target === elements.searchInput) {
+        event.preventDefault();
+        elements.searchInput.value = '';
+        state.searchQuery = '';
+        filterAndDisplayLinks();
+        elements.searchInput.blur();
+        return;
+    }
+
+    // Enter key - Open first result
+    if (event.key === 'Enter' && event.target === elements.searchInput) {
+        event.preventDefault();
+        if (state.filteredLinks.length > 0) {
+            const firstLink = state.filteredLinks[0];
+            logLinkUsage(firstLink);
+            window.open(firstLink.url, '_blank', 'noopener,noreferrer');
+        }
+        return;
+    }
+
+    // Number keys 1-9 - Open nth result
+    if (!isInputField && event.key >= '1' && event.key <= '9') {
+        const index = parseInt(event.key) - 1;
+        if (index < state.filteredLinks.length) {
+            event.preventDefault();
+            const link = state.filteredLinks[index];
+            logLinkUsage(link);
+            window.open(link.url, '_blank', 'noopener,noreferrer');
+        }
+        return;
+    }
 }
 
 // ==========================================

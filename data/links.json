@@ -2,10 +2,11 @@
   {
     "id": "brightspace",
     "name": "Brightspace",
-    "url": "https://brightspace.purdue.edu",
+    "url": "https://purdue.brightspace.com/",
     "category": "Academics",
     "description": "Download course materials, submit assignments, check grades",
-    "icon": "📚"
+    "icon": "📚",
+    "aliases": ["bs", "d2l", "desire2learn", "blackboard"]
   },
   {
     "id": "mypurdue",
@@ -13,7 +14,8 @@
     "url": "https://mypurdue.purdue.edu",
     "category": "Academics",
     "description": "Course registration, view grades, manage student info",
-    "icon": "🎓"
+    "icon": "🎓",
+    "aliases": ["mp", "portal", "register", "registration"]
   },
   {
     "id": "catalog",
@@ -21,15 +23,17 @@
     "url": "https://catalog.purdue.edu",
     "category": "Academics",
     "description": "Search courses, check major requirements",
-    "icon": "📖"
+    "icon": "📖",
+    "aliases": ["courses", "requirements", "major"]
   },
   {
     "id": "boilerconnect",
     "name": "BoilerConnect",
-    "url": "https://boilerconnect.purdue.edu",
-    "category": "Campus Life",
-    "description": "Join clubs, find campus events and free food",
-    "icon": "🎉"
+    "url": "https://purdue.campus.eab.com",
+    "category": "Academics",
+    "description": "Schedule appointments with advisors and professors",
+    "icon": "📅",
+    "aliases": ["bc", "advisor", "advising", "appointment", "professor"]
   },
   {
     "id": "handshake",
@@ -37,7 +41,8 @@
     "url": "https://purdue.joinhandshake.com",
     "category": "Career",
     "description": "Find internships, full-time jobs, register for career fairs",
-    "icon": "💼"
+    "icon": "💼",
+    "aliases": ["hs", "jobs", "internship", "career", "hire"]
   },
   {
     "id": "outlook",
@@ -45,7 +50,8 @@
     "url": "https://outlook.office.com",
     "category": "Utilities",
     "description": "Check school email, reply to professors",
-    "icon": "📧"
+    "icon": "📧",
+    "aliases": ["email", "mail", "inbox"]
   },
   {
     "id": "library",
@@ -53,15 +59,8 @@
     "url": "https://www.lib.purdue.edu",
     "category": "Academics",
     "description": "Search papers, reserve study rooms, borrow books",
-    "icon": "🏛️"
-  },
-  {
-    "id": "ccr",
-    "name": "Center for Career Opportunities",
-    "url": "https://www.cco.purdue.edu",
-    "category": "Career",
-    "description": "Resume review, mock interviews, career counseling",
-    "icon": "🚀"
+    "icon": "🏛️",
+    "aliases": ["lib", "books", "study room", "hicks"]
   },
   {
     "id": "housing",
@@ -69,23 +68,17 @@
     "url": "https://www.housing.purdue.edu",
     "category": "Campus Life",
     "description": "Apply for dorms, find roommates, request maintenance",
-    "icon": "🏠"
+    "icon": "🏠",
+    "aliases": ["dorms", "residence", "roommate"]
   },
   {
     "id": "dining",
     "name": "Purdue Dining",
-    "url": "https://dining.purdue.edu",
+    "url": "https://dining.purdue.edu/menus/",
     "category": "Campus Life",
     "description": "Check today's menu and dining court hours",
-    "icon": "🍽️"
-  },
-  {
-    "id": "protect-purdue",
-    "name": "Protect Purdue",
-    "url": "https://protect.purdue.edu",
-    "category": "Utilities",
-    "description": "Health screening, COVID info, campus safety",
-    "icon": "🛡️"
+    "icon": "🍽️",
+    "aliases": ["food", "menu", "dining court", "eat"]
   },
   {
     "id": "parking",
@@ -93,7 +86,8 @@
     "url": "https://www.purdue.edu/parking",
     "category": "Utilities",
     "description": "Buy parking permits, find lots, pay tickets",
-    "icon": "🚗"
+    "icon": "🚗",
+    "aliases": ["permit", "lot", "ticket"]
   },
   {
     "id": "registrar",
@@ -101,7 +95,8 @@
     "url": "https://www.purdue.edu/registrar",
     "category": "Academics",
     "description": "Order transcripts, enrollment verification, records",
-    "icon": "📋"
+    "icon": "📋",
+    "aliases": ["transcript", "records", "enrollment"]
   },
   {
     "id": "bursar",
@@ -109,15 +104,8 @@
     "url": "https://www.purdue.edu/bursar",
     "category": "Utilities",
     "description": "Pay tuition, view bills, request refunds",
-    "icon": "💳"
-  },
-  {
-    "id": "financial-aid",
-    "name": "Financial Aid",
-    "url": "https://www.purdue.edu/financialaid",
-    "category": "Utilities",
-    "description": "Apply for scholarships, loans, financial assistance",
-    "icon": "💰"
+    "icon": "💳",
+    "aliases": ["tuition", "payment", "bill", "refund"]
   },
   {
     "id": "caps",
@@ -125,7 +113,8 @@
     "url": "https://www.purdue.edu/caps",
     "category": "Campus Life",
     "description": "Book counseling appointments, mental health support (free)",
-    "icon": "🧠"
+    "icon": "🧠",
+    "aliases": ["counseling", "mental health", "therapy"]
   },
   {
     "id": "rec-sports",
@@ -133,7 +122,8 @@
     "url": "https://www.purdue.edu/recwell",
     "category": "Campus Life",
     "description": "Access gyms, join fitness classes and intramurals",
-    "icon": "⚽"
+    "icon": "⚽",
+    "aliases": ["gym", "corec", "france", "fitness", "workout"]
   },
   {
     "id": "tutoring",
@@ -141,7 +131,8 @@
     "url": "https://www.purdue.edu/tutoring",
     "category": "Academics",
     "description": "Free tutoring, math/science help, SI sessions",
-    "icon": "✏️"
+    "icon": "✏️",
+    "aliases": ["help", "si", "supplemental instruction"]
   },
   {
     "id": "campus-map",
@@ -149,14 +140,70 @@
     "url": "https://www.purdue.edu/campus-map",
     "category": "Utilities",
     "description": "Find buildings and get directions to classrooms",
-    "icon": "🗺️"
+    "icon": "🗺️",
+    "aliases": ["map", "directions", "building", "where"]
   },
   {
     "id": "bus-service",
     "name": "CityBus",
-    "url": "https://www.gocitybus.com",
+    "url": "https://www.in.gov/citybuslafayette/",
     "category": "Utilities",
     "description": "Real-time bus tracking, routes and schedules",
-    "icon": "🚌"
+    "icon": "🚌",
+    "aliases": ["bus", "citybus", "transport", "transit"]
+  },
+  {
+    "id": "polytechnic-home",
+    "name": "Purdue Polytechnic",
+    "url": "https://polytechnic.purdue.edu/current-students",
+    "category": "Academics",
+    "description": "Polytechnic-specific resources, advising, and events",
+    "icon": "🔧",
+    "aliases": ["poly", "tech", "cit", "cnit"]
+  },
+  {
+    "id": "cco",
+    "name": "Center for Career Opportunities",
+    "url": "https://www.purdue.edu/cco/",
+    "category": "Career",
+    "description": "Resume reviews, career advising, and employer events",
+    "icon": "💼",
+    "aliases": ["career center", "resume", "interview"]
+  },
+  {
+    "id": "research-opportunities",
+    "name": "Research Opportunities",
+    "url": "https://www.purdue.edu/undergrad-research/",
+    "category": "Career",
+    "description": "Find undergraduate research positions and programs",
+    "icon": "🔬",
+    "aliases": ["research", "lab", "urop"]
+  },
+  {
+    "id": "boilerlink",
+    "name": "BoilerLink",
+    "url": "https://boilerlink.purdue.edu",
+    "category": "Campus Life",
+    "description": "Student organizations and campus involvement",
+    "icon": "🎉",
+    "aliases": ["clubs", "organizations", "involvement", "events"]
+  },
+  {
+    "id": "mypurdueplan",
+    "name": "MyPurduePlan",
+    "url": "https://mypurdueplan.purdue.edu/",
+    "category": "Academics",
+    "description": "Academic planning and degree progress audit tool for all Purdue students",
+    "icon": "📊",
+    "aliases": ["mpp", "degree audit", "progress", "plan"]
+  },
+  {
+    "id": "codo-requirements",
+    "name": "CODO Requirements",
+    "url": "https://www.purdue.edu/advisors/codo/",
+    "category": "Academics",
+    "description": "Official Change of Degree Objective (CODO) requirements and application process, Change major",
+    "icon": "🔄",
+    "aliases": ["codo", "change major", "switch major", "transfer"]
   }
 ]

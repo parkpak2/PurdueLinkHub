@@ -1,7 +1,7 @@
 {
-  "name": "purdue-link-hub-server",
+  "name": "boiler-link-hub-server",
   "version": "1.0.0",
-  "description": "Backend server for Purdue Link Hub - Usage tracking and trending links",
+  "description": "Backend server for Boiler Link Hub - Usage tracking and trending links",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -9,10 +9,11 @@
   },
   "keywords": [
     "purdue",
+    "boilermakers",
     "link-hub",
     "usage-tracking"
   ],
-  "author": "Purdue Link Hub Team",
+  "author": "Boiler Link Hub Team",
   "license": "MIT",
   "dependencies": {
     "express": "^4.18.2",

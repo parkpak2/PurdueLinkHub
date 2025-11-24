@@ -1,5 +1,5 @@
 /**
- * Purdue Link Hub - Backend Server
+ * Boiler Link Hub - Backend Server
  * Handles usage tracking and trending links analytics
  */
 
@@ -166,6 +166,189 @@ app.get('/api/purdue/*', async (req, res) => {
         console.error('Error proxying to Purdue.io:', error);
         res.status(500).json({
             error: 'Failed to fetch data from Purdue.io',
+            message: error.message
+        });
+    }
+});
+
+// ==========================================
+// On-Demand Data Loading (No upfront caching)
+// ==========================================
+// All data is fetched from Purdue.io API on-demand when needed
+
+// ==========================================
+// Course Sections Endpoint (Backend Filtering)
+// ==========================================
+
+/**
+ * GET /api/course-sections/:courseId/:termId
+ * Get sections for a specific course and term (on-demand from Purdue.io API)
+ */
+app.get('/api/course-sections/:courseId/:termId', async (req, res) => {
+    try {
+        const { courseId, termId } = req.params;
+        console.log(`\n🔍 Fetching sections for course ${courseId} in term ${termId}`);
+
+        const fetch = (await import('node-fetch')).default;
+        const startTime = Date.now();
+
+        // Step 1: Get classes for this course and term
+        const classesUrl = `https://api.purdue.io/odata/Classes?$filter=CourseId eq ${courseId} and TermId eq ${termId}`;
+        const classesResponse = await fetch(classesUrl);
+        if (!classesResponse.ok) throw new Error('Failed to fetch classes');
+
+        const classesData = await classesResponse.json();
+        const matchingClasses = classesData.value;
+        console.log(`   Found ${matchingClasses.length} classes`);
+
+        if (matchingClasses.length === 0) {
+            return res.json({ success: true, data: [] });
+        }
+
+        // Step 2: Get sections for these classes (in batches to avoid URL length limit)
+        const classIds = matchingClasses.map(c => c.Id);
+        const batchSize = 10; // Fetch 10 classes at a time to avoid URL length issues
+        let allSections = [];
+
+        for (let i = 0; i < classIds.length; i += batchSize) {
+            const batch = classIds.slice(i, i + batchSize);
+            const classIdFilter = batch.map(id => `ClassId eq ${id}`).join(' or ');
+            const sectionsUrl = `https://api.purdue.io/odata/Sections?$filter=${classIdFilter}`;
+
+            const sectionsResponse = await fetch(sectionsUrl);
+            if (!sectionsResponse.ok) {
+                console.error(`   ❌ Failed to fetch sections batch ${i / batchSize + 1}: ${sectionsResponse.status}`);
+                throw new Error(`Failed to fetch sections: ${sectionsResponse.status}`);
+            }
+
+            const sectionsData = await sectionsResponse.json();
+            allSections.push(...sectionsData.value);
+        }
+
+        console.log(`   Found ${allSections.length} sections`);
+
+        if (allSections.length === 0) {
+            return res.json({ success: true, data: [] });
+        }
+
+        // Step 3: Get meetings for these sections (in batches)
+        const sectionIds = allSections.map(s => s.Id);
+        let allMeetings = [];
+
+        for (let i = 0; i < sectionIds.length; i += batchSize) {
+            const batch = sectionIds.slice(i, i + batchSize);
+            const sectionIdFilter = batch.map(id => `SectionId eq ${id}`).join(' or ');
+            const meetingsUrl = `https://api.purdue.io/odata/Meetings?$filter=${sectionIdFilter}`;
+
+            const meetingsResponse = await fetch(meetingsUrl);
+            if (!meetingsResponse.ok) {
+                console.error(`   ❌ Failed to fetch meetings batch ${i / batchSize + 1}: ${meetingsResponse.status}`);
+                throw new Error(`Failed to fetch meetings: ${meetingsResponse.status}`);
+            }
+
+            const meetingsData = await meetingsResponse.json();
+            allMeetings.push(...meetingsData.value);
+        }
+
+        console.log(`   Found ${allMeetings.length} meetings`);
+
+        // Step 4: Get instructors, rooms, and buildings
+        const instructorIds = [...new Set(allMeetings.map(m => m.InstructorId).filter(id => id))];
+        const roomIds = [...new Set(allMeetings.map(m => m.RoomId).filter(id => id))];
+
+        let instructors = [];
+        let rooms = [];
+        let buildings = [];
+
+        // Fetch instructors and rooms in parallel
+        if (instructorIds.length > 0 || roomIds.length > 0) {
+            const promises = [];
+
+            if (instructorIds.length > 0) {
+                const instructorFilter = instructorIds.map(id => `Id eq ${id}`).join(' or ');
+                const instructorsUrl = `https://api.purdue.io/odata/Instructors?$filter=${instructorFilter}`;
+                promises.push(fetch(instructorsUrl).then(r => r.json()));
+            } else {
+                promises.push(Promise.resolve({ value: [] }));
+            }
+
+            if (roomIds.length > 0) {
+                const roomFilter = roomIds.map(id => `Id eq ${id}`).join(' or ');
+                const roomsUrl = `https://api.purdue.io/odata/Rooms?$filter=${roomFilter}`;
+                promises.push(fetch(roomsUrl).then(r => r.json()));
+            } else {
+                promises.push(Promise.resolve({ value: [] }));
+            }
+
+            const [instructorsData, roomsData] = await Promise.all(promises);
+            instructors = instructorsData.value;
+            rooms = roomsData.value;
+
+            // Get buildings for the rooms
+            if (rooms.length > 0) {
+                const buildingIds = [...new Set(rooms.map(r => r.BuildingId).filter(id => id))];
+                if (buildingIds.length > 0) {
+                    const buildingFilter = buildingIds.map(id => `Id eq ${id}`).join(' or ');
+                    const buildingsUrl = `https://api.purdue.io/odata/Buildings?$filter=${buildingFilter}`;
+                    const buildingsResponse = await fetch(buildingsUrl);
+                    const buildingsData = await buildingsResponse.json();
+                    buildings = buildingsData.value;
+                }
+            }
+        }
+
+        // Step 5: Enrich sections with meetings, instructors, and rooms
+        const enrichedSections = allSections.map(section => {
+            const sectionMeetings = allMeetings.filter(m => m.SectionId === section.Id);
+
+            const enrichedMeetings = sectionMeetings.map(meeting => {
+                let enriched = { ...meeting };
+
+                // Attach instructor
+                if (meeting.InstructorId) {
+                    const instructor = instructors.find(i => i.Id === meeting.InstructorId);
+                    if (instructor) {
+                        enriched.Instructor = instructor;
+                    }
+                }
+
+                // Attach room with building info
+                if (meeting.RoomId) {
+                    const room = rooms.find(r => r.Id === meeting.RoomId);
+                    if (room) {
+                        const building = buildings.find(b => b.Id === room.BuildingId);
+                        enriched.Room = {
+                            ...room,
+                            Building: building
+                        };
+                    }
+                }
+
+                return enriched;
+            });
+
+            return {
+                ...section,
+                Meetings: enrichedMeetings
+            };
+        });
+
+        const loadTime = ((Date.now() - startTime) / 1000).toFixed(2);
+        console.log(`   ✅ Completed in ${loadTime}s\n`);
+
+        res.json({
+            success: true,
+            data: enrichedSections,
+            classCount: matchingClasses.length,
+            sectionCount: enrichedSections.length,
+            loadTime: loadTime
+        });
+
+    } catch (error) {
+        console.error('❌ Error fetching course sections:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to fetch course sections',
             message: error.message
         });
     }
@@ -368,7 +551,7 @@ app.use((err, req, res, next) => {
 // ==========================================
 app.listen(PORT, () => {
     console.log('===========================================');
-    console.log('🚀 Purdue Link Hub Server');
+    console.log('🚀 Boiler Link Hub Server');
     console.log('===========================================');
     console.log(`Server running on http://localhost:${PORT}`);
     console.log(`API Endpoints:`);

@@ -79,8 +79,14 @@ function renderScheduleGrid(sections) {
         renderSection(section, grid);
     });
 
+    // Update credit counter
+    updateCreditCounter(sections);
+
     // Setup clear schedule button
     setupClearScheduleButton();
+
+    // Setup export schedule button
+    setupExportScheduleButton();
 }
 
 function createGridStructure() {
@@ -161,7 +167,7 @@ function formatHour(hour) {
 function renderSection(section, grid) {
     if (!section.Meetings || section.Meetings.length === 0) return;
 
-    const courseId = section._course?.CourseId;
+    const courseId = section._course?.Id;
     const color = scheduleState.colorMap.get(courseId) || '#999';
 
     section.Meetings.forEach(meeting => {
@@ -199,7 +205,7 @@ function createMeetingBlock(meeting, section, color, dayIndex) {
 
     // Check if this section has conflicts
     const hasConflict = scheduleState.conflicts.some(conflict =>
-        conflict.sections.includes(section.SectionId)
+        conflict.sections.includes(section.Id)
     );
 
     if (hasConflict) {
@@ -217,28 +223,39 @@ function createMeetingBlock(meeting, section, color, dayIndex) {
     const number = section._course?.Number?.replace(/^0+/, '') || '';
     const courseCode = `${subject} ${number}`;
     const type = section.Type || 'Lecture';
-    const location = formatLocation(meeting.Room);
     const time = formatTime(meeting.StartTime, meeting.Duration);
+
+    // Get room location if available
+    const room = meeting.Room;
+    const location = room ? `${room.Building?.ShortCode || ''} ${room.Number || ''}`.trim() : '';
 
     block.innerHTML = `
         <div class="meeting-block-content">
             <div class="meeting-course">${courseCode}</div>
             <div class="meeting-type">${type}</div>
-            <div class="meeting-location">${location}</div>
+            ${location ? `<div class="meeting-location">${location}</div>` : ''}
             <div class="meeting-time">${time}</div>
         </div>
     `;
 
-    // Tooltip
-    block.title = `${section._course?.Title}\n${type}\n${time}\n${location}`;
+    // Tooltip with location
+    const tooltipParts = [section._course?.Title, type];
+    if (location) tooltipParts.push(location);
+    tooltipParts.push(time);
+    block.title = tooltipParts.join('\n');
 
     return block;
 }
 
 function parseTimeInfo(startTime, duration) {
-    const start = new Date(startTime);
-    const startHour = start.getUTCHours();
-    const startMin = start.getUTCMinutes();
+    if (!startTime) return null;
+
+    // Parse time string format "14:30:00.0000000"
+    const timeMatch = startTime.match(/^(\d+):(\d+):(\d+)/);
+    if (!timeMatch) return null;
+
+    const startHour = parseInt(timeMatch[1]);
+    const startMin = parseInt(timeMatch[2]);
 
     // Calculate slot index (0-based, 30-minute slots)
     const startSlot = (startHour - SCHEDULE_CONFIG.startHour) * 2 + (startMin >= 30 ? 1 : 0);
@@ -301,7 +318,7 @@ function assignCourseColors(sections) {
     const uniqueCourses = new Set();
 
     sections.forEach(section => {
-        const courseId = section._course?.CourseId;
+        const courseId = section._course?.Id;
         if (courseId) {
             uniqueCourses.add(courseId);
         }
@@ -334,7 +351,7 @@ function detectAllConflicts(sections) {
         for (let j = i + 1; j < sections.length; j++) {
             if (sectionsConflict(sections[i], sections[j])) {
                 conflicts.push({
-                    sections: [sections[i].SectionId, sections[j].SectionId],
+                    sections: [sections[i].Id, sections[j].Id],
                     courses: [
                         `${sections[i]._course?.Subject?.Abbreviation} ${sections[i]._course?.Number}`,
                         `${sections[j]._course?.Subject?.Abbreviation} ${sections[j]._course?.Number}`
@@ -434,9 +451,12 @@ function formatLocation(room) {
 function formatTime(startTime, duration) {
     if (!startTime) return 'TBA';
 
-    const start = new Date(startTime);
-    const startHour = start.getUTCHours();
-    const startMin = start.getUTCMinutes();
+    // Parse time string format "14:30:00.0000000"
+    const timeMatch = startTime.match(/^(\d+):(\d+):(\d+)/);
+    if (!timeMatch) return 'TBA';
+
+    const startHour = parseInt(timeMatch[1]);
+    const startMin = parseInt(timeMatch[2]);
 
     const startFormatted = formatTimeString(startHour, startMin);
 
@@ -446,9 +466,9 @@ function formatTime(startTime, duration) {
             const hours = parseInt(match[1] || 0);
             const minutes = parseInt(match[2] || 0);
 
-            const endMin = startMin + minutes;
-            const endHour = startHour + hours + Math.floor(endMin / 60);
-            const endMinFinal = endMin % 60;
+            const totalEndMin = startMin + minutes;
+            const endHour = startHour + hours + Math.floor(totalEndMin / 60);
+            const endMinFinal = totalEndMin % 60;
 
             const endFormatted = formatTimeString(endHour, endMinFinal);
             return `${startFormatted}-${endFormatted}`;
@@ -476,6 +496,29 @@ function setupClearScheduleButton() {
     }
 }
 
+function updateCreditCounter(sections) {
+    const creditCounter = document.getElementById('creditCounter');
+    if (!creditCounter) return;
+
+    // Calculate total credits from unique courses
+    const uniqueCourses = new Map();
+
+    sections.forEach(section => {
+        const courseId = section._course?.Id;
+        const creditHours = section._course?.CreditHours || 0;
+
+        if (courseId && !uniqueCourses.has(courseId)) {
+            uniqueCourses.set(courseId, creditHours);
+        }
+    });
+
+    // Sum up all credits
+    const totalCredits = Array.from(uniqueCourses.values()).reduce((sum, credits) => sum + credits, 0);
+
+    // Update display
+    creditCounter.textContent = `${totalCredits} Credit${totalCredits !== 1 ? 's' : ''}`;
+}
+
 function clearSchedule() {
     // Clear state
     if (window.CourseSearch && window.CourseSearch.state) {
@@ -499,6 +542,100 @@ function clearSchedule() {
     });
 
     alert('Schedule cleared successfully!');
+}
+
+function setupExportScheduleButton() {
+    const exportBtn = document.getElementById('exportScheduleBtn');
+    if (exportBtn) {
+        exportBtn.onclick = exportScheduleAsImage;
+    }
+}
+
+async function exportScheduleAsImage() {
+    const scheduleSection = document.getElementById('scheduleSection');
+    const scheduleGrid = document.getElementById('scheduleGrid');
+
+    if (!scheduleGrid || !window.html2canvas) {
+        alert('Export feature is not available. Please refresh the page.');
+        return;
+    }
+
+    // Check if schedule has content
+    if (scheduleState.renderedSections.length === 0) {
+        alert('No schedule to export! Please add courses first.');
+        return;
+    }
+
+    try {
+        // Show loading message
+        const exportBtn = document.getElementById('exportScheduleBtn');
+        const originalText = exportBtn.textContent;
+        exportBtn.textContent = '⏳ Exporting...';
+        exportBtn.disabled = true;
+
+        // Detect current theme
+        const isDarkMode = document.body.classList.contains('dark-theme');
+        const bgColor = isDarkMode ? '#1a1a1a' : '#ffffff';
+
+        // Create a wrapper for better styling
+        const exportWrapper = document.createElement('div');
+        exportWrapper.style.cssText = `
+            position: fixed;
+            left: -9999px;
+            top: 0;
+            background: ${bgColor};
+            padding: 20px;
+        `;
+
+        // Apply dark theme class if needed
+        if (isDarkMode) {
+            exportWrapper.classList.add('dark-theme');
+        }
+
+        // Clone only the schedule grid
+        const scheduleGridClone = scheduleGrid.cloneNode(true);
+        scheduleGridClone.style.display = 'grid';
+        scheduleGridClone.style.margin = '0';
+
+        exportWrapper.appendChild(scheduleGridClone);
+        document.body.appendChild(exportWrapper);
+
+        // Capture with html2canvas
+        const canvas = await html2canvas(exportWrapper, {
+            backgroundColor: bgColor,
+            scale: 2, // Higher quality
+            logging: false,
+            allowTaint: true,
+            useCORS: true
+        });
+
+        // Remove temporary wrapper
+        document.body.removeChild(exportWrapper);
+
+        // Convert to image and download
+        canvas.toBlob((blob) => {
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            const timestamp = new Date().toISOString().split('T')[0];
+            link.download = `Purdue-Schedule-${timestamp}.png`;
+            link.href = url;
+            link.click();
+            URL.revokeObjectURL(url);
+
+            // Restore button
+            exportBtn.textContent = originalText;
+            exportBtn.disabled = false;
+        });
+
+    } catch (error) {
+        console.error('Error exporting schedule:', error);
+        alert('Failed to export schedule. Please try again.');
+
+        // Restore button
+        const exportBtn = document.getElementById('exportScheduleBtn');
+        exportBtn.textContent = '📸 Export Image';
+        exportBtn.disabled = false;
+    }
 }
 
 // ==========================================

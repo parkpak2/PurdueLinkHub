@@ -9,22 +9,22 @@
     background: linear-gradient(135deg, rgba(255, 107, 107, 0.1) 0%, var(--card-bg) 100%);
     border: 2px solid rgba(255, 107, 107, 0.3);
     border-radius: 12px;
-    padding: 24px;
-    margin-bottom: 24px;
+    padding: 16px;
+    margin-bottom: 20px;
     box-shadow: 0 2px 8px rgba(255, 107, 107, 0.2);
 }
 
 .trending-header {
-    margin-bottom: 20px;
+    margin-bottom: 14px;
 }
 
 .trending-title {
-    font-size: 24px;
+    font-size: 20px;
     font-weight: 700;
     color: var(--text-primary);
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     margin-bottom: 4px;
 }
 
@@ -43,8 +43,8 @@
 .trending-item {
     display: flex;
     align-items: center;
-    gap: 16px;
-    padding: 14px 16px;
+    gap: 12px;
+    padding: 10px 12px;
     background: var(--card-bg);
     border-radius: 8px;
     border: 2px solid transparent;
@@ -59,9 +59,9 @@
 }
 
 .trending-rank {
-    font-size: 24px;
+    font-size: 20px;
     font-weight: 700;
-    min-width: 40px;
+    min-width: 32px;
     text-align: center;
     color: #FF6B6B;
 }
@@ -71,14 +71,14 @@
 }
 
 .trending-name {
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
     color: var(--text-primary);
     margin-bottom: 2px;
 }
 
 .trending-count {
-    font-size: 13px;
+    font-size: 12px;
     color: var(--text-secondary);
     font-weight: 500;
 }
@@ -96,11 +96,11 @@
 }
 
 .trending-footer {
-    margin-top: 16px;
-    padding-top: 16px;
+    margin-top: 12px;
+    padding-top: 12px;
     border-top: 1px solid var(--border-color);
     text-align: center;
-    font-size: 12px;
+    font-size: 11px;
     color: var(--text-secondary);
 }
 
@@ -132,6 +132,28 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
+    max-height: 240px;
+    overflow-y: auto;
+    padding-right: 8px;
+}
+
+/* Scrollbar styling for deadlines list */
+.deadlines-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.deadlines-list::-webkit-scrollbar-track {
+    background: var(--bg-primary);
+    border-radius: 3px;
+}
+
+.deadlines-list::-webkit-scrollbar-thumb {
+    background: var(--purdue-gold);
+    border-radius: 3px;
+}
+
+.deadlines-list::-webkit-scrollbar-thumb:hover {
+    background: #B8A87A;
 }
 
 .deadline-item {
@@ -613,15 +635,44 @@
     margin-bottom: 20px;
 }
 
+.schedule-title-group {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
 .schedule-title {
     font-size: 20px;
     font-weight: 700;
     color: var(--text-primary);
 }
 
+.credit-counter {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 14px;
+    background: var(--purdue-gold);
+    color: var(--purdue-black);
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
 .schedule-actions {
     display: flex;
     gap: 12px;
+}
+
+.export-btn {
+    background: linear-gradient(135deg, #CFB991, #B1810B) !important;
+    color: #000 !important;
+    font-weight: 600;
+}
+
+.export-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(206, 184, 136, 0.4);
 }
 
 .schedule-grid {
@@ -698,7 +749,6 @@
 
 /* Meeting Blocks */
 .meeting-block {
-    position: relative;
     padding: 6px 8px;
     border-radius: 4px;
     font-size: 11px;
@@ -707,6 +757,7 @@
     cursor: pointer;
     transition: all 0.2s ease;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    z-index: 1;
 }
 
 .meeting-block:hover {
@@ -732,31 +783,33 @@
 .meeting-block-content {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 1px;
+    line-height: 1.2;
 }
 
 .meeting-course {
     font-weight: 700;
-    font-size: 12px;
+    font-size: 11px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
 .meeting-type {
-    font-size: 10px;
+    font-size: 9px;
     opacity: 0.9;
 }
 
 .meeting-location {
-    font-size: 10px;
+    font-size: 9px;
     opacity: 0.85;
+    font-weight: 500;
 }
 
 .meeting-time {
-    font-size: 9px;
+    font-size: 8px;
     opacity: 0.8;
-    margin-top: 2px;
+    margin-top: 1px;
 }
 
 /* Conflict Warning */

@@ -11,7 +11,19 @@ const courseState = {
     selectedSections: [],
     currentTerm: null,
     availableTerms: [],
-    isLoading: false
+    subjects: new Map(), // Cache subjects by ID
+    courses: [], // Cache all courses
+    classes: [], // Cache all classes (loaded on demand)
+    sections: [], // Cache all sections (loaded on demand)
+    classesLoaded: false,
+    sectionsLoaded: false,
+    isLoading: false,
+    // Pagination
+    currentPage: 1,
+    itemsPerPage: 10,
+    // Section pagination (per course)
+    sectionPages: {}, // courseId -> currentPage
+    sectionsPerPage: 5
 };
 
 // ==========================================
@@ -29,12 +41,14 @@ const courseElements = {
 // ==========================================
 // API Configuration
 // ==========================================
-const API_BASE = 'http://api.purdue.io/odata';
+// Use backend proxy to avoid CORS issues
+// Backend will forward requests to https://api.purdue.io/odata
+const API_BASE = 'http://localhost:3000/api/purdue';
 
 // ==========================================
 // Initialization
 // ==========================================
-function initCourseSearch() {
+async function initCourseSearch() {
     // Get DOM elements
     courseElements.searchInput = document.getElementById('courseSearchInput');
     courseElements.searchButton = document.getElementById('courseSearchButton');
@@ -46,8 +60,14 @@ function initCourseSearch() {
     // Load saved schedule from localStorage
     loadSavedSchedule();
 
-    // Load available terms
-    loadTerms();
+    // Load data in parallel
+    console.log('Loading subjects and terms...');
+    await Promise.all([
+        loadSubjects(),
+        loadTerms()
+    ]);
+
+    console.log(`Loaded ${courseState.subjects.size} subjects`);
 
     // Setup event listeners
     setupCourseEventListeners();
@@ -74,15 +94,44 @@ function setupCourseEventListeners() {
 }
 
 // ==========================================
+// Subject Management
+// ==========================================
+async function loadSubjects() {
+    try {
+        const response = await fetch(`${API_BASE}/Subjects`);
+        if (!response.ok) throw new Error('Failed to load subjects');
+
+        const data = await response.json();
+
+        // Store subjects in a Map by ID for quick lookup
+        courseState.subjects.clear();
+        data.value.forEach(subject => {
+            courseState.subjects.set(subject.Id, subject);
+        });
+
+        console.log(`Loaded ${courseState.subjects.size} subjects`);
+    } catch (error) {
+        console.error('Error loading subjects:', error);
+    }
+}
+
+// ==========================================
 // Term Management
 // ==========================================
 async function loadTerms() {
     try {
-        const response = await fetch(`${API_BASE}/Terms?$orderby=StartDate desc&$top=5`);
+        // Fetch all terms (OData query params disabled by Purdue.io API)
+        const response = await fetch(`${API_BASE}/Terms`);
         if (!response.ok) throw new Error('Failed to load terms');
 
         const data = await response.json();
-        courseState.availableTerms = data.value;
+
+        // Filter out terms without dates and sort by StartDate descending
+        let terms = data.value.filter(term => term.StartDate);
+        terms.sort((a, b) => new Date(b.StartDate) - new Date(a.StartDate));
+
+        // Take top 5 most recent terms
+        courseState.availableTerms = terms.slice(0, 5);
 
         // Set current term to the most recent
         if (courseState.availableTerms.length > 0) {
@@ -102,7 +151,7 @@ function populateTermSelect() {
 
     courseState.availableTerms.forEach(term => {
         const option = document.createElement('option');
-        option.value = term.TermId;
+        option.value = term.Id;
         option.textContent = term.Name;
         courseElements.termSelect.appendChild(option);
     });
@@ -110,7 +159,7 @@ function populateTermSelect() {
 
 function handleTermChange(e) {
     const selectedTermId = e.target.value;
-    courseState.currentTerm = courseState.availableTerms.find(t => t.TermId === selectedTermId);
+    courseState.currentTerm = courseState.availableTerms.find(t => t.Id === selectedTermId);
 
     // Clear current results when term changes
     if (courseElements.resultsContainer) {
@@ -144,34 +193,68 @@ async function handleCourseSearch() {
 }
 
 async function searchCourses(query) {
-    // Parse query - support formats like "CS 180", "CS180", "18000", etc.
+    // Parse query - support formats like "CS 18000", etc.
     const parsed = parseSearchQuery(query);
 
-    let filter = '';
+    // Lazy load courses only once
+    if (courseState.courses.length === 0) {
+        console.log('⏳ Loading courses (first time only, ~5 seconds)...');
+        const url = `${API_BASE}/Courses`;
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('API request failed');
 
-    if (parsed.subject && parsed.number) {
-        // Search by subject + number (e.g., "CS 180")
-        filter = `Subject/Abbreviation eq '${parsed.subject}' and Number eq '${parsed.number}'`;
-    } else if (parsed.subject) {
-        // Search by subject only (e.g., "CS")
-        filter = `Subject/Abbreviation eq '${parsed.subject}'`;
-    } else if (parsed.number) {
-        // Search by number only (e.g., "18000")
-        filter = `Number eq '${parsed.number}'`;
-    } else {
-        // Search by title keyword
-        filter = `contains(Title, '${query}')`;
+        const data = await response.json();
+
+        // Attach subjects immediately during load
+        data.value.forEach(course => {
+            if (course.SubjectId) {
+                course.Subject = courseState.subjects.get(course.SubjectId);
+            }
+        });
+
+        courseState.courses = data.value;
+        console.log(`✅ Cached ${courseState.courses.length} courses`);
     }
 
-    const url = `${API_BASE}/Courses?$filter=${encodeURIComponent(filter)}&$expand=Subject&$orderby=Number asc`;
+    // Fast filtering on cached data
+    let filteredCourses = courseState.courses.filter(course => {
+        if (!course.Subject) return false;
 
-    const response = await fetch(url);
-    if (!response.ok) throw new Error('API request failed');
+        if (parsed.subject && parsed.number) {
+            return course.Subject.Abbreviation === parsed.subject &&
+                   course.Number === parsed.number;
+        } else if (parsed.subject) {
+            return course.Subject.Abbreviation === parsed.subject;
+        } else if (parsed.number) {
+            return course.Number === parsed.number;
+        } else {
+            return course.Title &&
+                   course.Title.toLowerCase().includes(query.toLowerCase());
+        }
+    });
 
-    const data = await response.json();
-    courseState.searchResults = data.value;
+    // Limit results to 50 for better performance
+    if (filteredCourses.length > 50) {
+        console.log(`⚠️ Found ${filteredCourses.length} courses, showing first 50`);
+        filteredCourses = filteredCourses.slice(0, 50);
+    }
 
-    return data.value;
+    // Sort by subject abbreviation first, then course number
+    filteredCourses.sort((a, b) => {
+        const subjA = a.Subject?.Abbreviation || '';
+        const subjB = b.Subject?.Abbreviation || '';
+
+        if (subjA !== subjB) {
+            return subjA.localeCompare(subjB);
+        }
+
+        const numA = parseInt(a.Number) || 0;
+        const numB = parseInt(b.Number) || 0;
+        return numA - numB;
+    });
+
+    courseState.searchResults = filteredCourses;
+    return filteredCourses;
 }
 
 function parseSearchQuery(query) {
@@ -213,18 +296,89 @@ function displayCourseResults(courses) {
             <div class="no-results">
                 <div class="empty-icon">🔍</div>
                 <h3>No courses found</h3>
-                <p>Try a different search term like "CS 180" or "Calculus"</p>
+                <p>Try a different search term like "TECH 12000" or "CNIT"</p>
             </div>
         `;
         return;
     }
 
+    // Reset to page 1 on new search
+    courseState.currentPage = 1;
+
+    renderPaginatedResults(courses);
+}
+
+function renderPaginatedResults(courses) {
+    if (!courseElements.resultsContainer) return;
+
+    const totalPages = Math.ceil(courses.length / courseState.itemsPerPage);
+    const startIdx = (courseState.currentPage - 1) * courseState.itemsPerPage;
+    const endIdx = startIdx + courseState.itemsPerPage;
+    const pageItems = courses.slice(startIdx, endIdx);
+
     courseElements.resultsContainer.innerHTML = '';
 
-    courses.forEach(course => {
+    // Show result count
+    const resultInfo = document.createElement('div');
+    resultInfo.className = 'result-info';
+    resultInfo.innerHTML = `
+        <p>Showing ${startIdx + 1}-${Math.min(endIdx, courses.length)} of ${courses.length} courses</p>
+    `;
+    courseElements.resultsContainer.appendChild(resultInfo);
+
+    // Display courses for current page
+    pageItems.forEach(course => {
         const card = createCourseCard(course);
         courseElements.resultsContainer.appendChild(card);
     });
+
+    // Add pagination controls if needed
+    if (totalPages > 1) {
+        const pagination = createPaginationControls(totalPages, courses);
+        courseElements.resultsContainer.appendChild(pagination);
+    }
+}
+
+function createPaginationControls(totalPages, courses) {
+    const container = document.createElement('div');
+    container.className = 'pagination-controls';
+
+    // Previous button
+    const prevBtn = document.createElement('button');
+    prevBtn.textContent = '← Previous';
+    prevBtn.className = 'pagination-btn';
+    prevBtn.disabled = courseState.currentPage === 1;
+    prevBtn.onclick = () => {
+        if (courseState.currentPage > 1) {
+            courseState.currentPage--;
+            renderPaginatedResults(courses);
+            courseElements.resultsContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+    };
+
+    // Page info
+    const pageInfo = document.createElement('span');
+    pageInfo.className = 'page-info';
+    pageInfo.textContent = `Page ${courseState.currentPage} of ${totalPages}`;
+
+    // Next button
+    const nextBtn = document.createElement('button');
+    nextBtn.textContent = 'Next →';
+    nextBtn.className = 'pagination-btn';
+    nextBtn.disabled = courseState.currentPage === totalPages;
+    nextBtn.onclick = () => {
+        if (courseState.currentPage < totalPages) {
+            courseState.currentPage++;
+            renderPaginatedResults(courses);
+            courseElements.resultsContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+    };
+
+    container.appendChild(prevBtn);
+    container.appendChild(pageInfo);
+    container.appendChild(nextBtn);
+
+    return container;
 }
 
 function createCourseCard(course) {
@@ -242,10 +396,10 @@ function createCourseCard(course) {
         </div>
         <h3 class="course-title">${course.Title || 'Untitled Course'}</h3>
         <p class="course-description">${course.Description || 'No description available.'}</p>
-        <button class="view-sections-btn" data-course-id="${course.CourseId}">
+        <button class="view-sections-btn" data-course-id="${course.Id}">
             View Sections
         </button>
-        <div class="course-sections" id="sections-${course.CourseId}" style="display: none;">
+        <div class="course-sections" id="sections-${course.Id}" style="display: none;">
             <div class="loading-sections">Loading sections...</div>
         </div>
     `;
@@ -261,7 +415,7 @@ function createCourseCard(course) {
 // Section Loading and Display
 // ==========================================
 async function toggleSections(course, card) {
-    const sectionsContainer = card.querySelector(`#sections-${course.CourseId}`);
+    const sectionsContainer = card.querySelector(`#sections-${course.Id}`);
     const btn = card.querySelector('.view-sections-btn');
 
     // Toggle visibility
@@ -277,11 +431,41 @@ async function toggleSections(course, card) {
     // Load sections if not already loaded
     if (sectionsContainer.querySelector('.loading-sections')) {
         try {
-            const sections = await loadCourseSections(course.CourseId);
+            console.log('==========================================');
+            console.log('👉 View Sections clicked for course:', course);
+            console.log('Course ID:', course.Id);
+            console.log('Course Title:', course.Title);
+            console.log('==========================================');
+
+            // Update loading message
+            sectionsContainer.innerHTML = `
+                <div class="loading-sections">
+                    <div style="text-align: center; padding: 20px;">
+                        <div style="font-size: 24px; margin-bottom: 10px;">⏳</div>
+                        <div><strong>Loading sections from server...</strong></div>
+                        <div style="font-size: 12px; color: #666; margin-top: 10px;">
+                            <strong>First time:</strong> 10-20 seconds (loading 516K classes + 665K sections)<br>
+                            <strong>After that:</strong> Instant (server cached)
+                        </div>
+                        <div style="font-size: 11px; color: #999; margin-top: 10px; font-style: italic;">
+                            Server is filtering data on backend for better performance
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            const sections = await loadCourseSections(course.Id);
+            console.log('✅ Received sections:', sections.length);
             displaySections(sectionsContainer, sections, course);
         } catch (error) {
-            console.error('Error loading sections:', error);
-            sectionsContainer.innerHTML = '<p class="error-message">Failed to load sections.</p>';
+            console.error('❌ Error loading sections:', error);
+            console.error('Error stack:', error.stack);
+            sectionsContainer.innerHTML = `
+                <p class="error-message">
+                    ⚠️ Failed to load sections. Please try again.
+                    <br><small>${error.message}</small>
+                </p>
+            `;
         }
     }
 }
@@ -291,46 +475,135 @@ async function loadCourseSections(courseId) {
         throw new Error('No term selected');
     }
 
-    // Get Classes for this course in the current term
-    const filter = `Course/CourseId eq ${courseId} and Term/TermId eq ${courseState.currentTerm.TermId}`;
-    const url = `${API_BASE}/Classes?$filter=${encodeURIComponent(filter)}&$expand=Sections($expand=Meetings($expand=Room($expand=Building),Instructors))`;
+    console.log('🔍 Fetching sections from backend...');
+    console.log('  CourseId:', courseId);
+    console.log('  TermId:', courseState.currentTerm.Id);
+    console.log('  Term Name:', courseState.currentTerm.Name);
+
+    // Use backend endpoint to filter sections server-side
+    const url = `http://localhost:3000/api/course-sections/${courseId}/${courseState.currentTerm.Id}`;
 
     const response = await fetch(url);
-    if (!response.ok) throw new Error('Failed to load sections');
+    if (!response.ok) {
+        throw new Error(`Failed to load sections: ${response.status}`);
+    }
 
-    const data = await response.json();
+    const result = await response.json();
 
-    // Flatten sections from all classes
-    const allSections = [];
-    data.value.forEach(classEntity => {
-        if (classEntity.Sections) {
-            classEntity.Sections.forEach(section => {
-                section._classEntity = classEntity; // Store reference to parent class
-                allSections.push(section);
-            });
-        }
-    });
+    if (!result.success) {
+        throw new Error(result.message || 'Failed to load sections');
+    }
 
-    return allSections;
+    const sections = result.data || [];
+
+    console.log(`✅ Found ${sections.length} sections (${result.classCount} classes)`);
+
+    if (sections.length > 0) {
+        console.log('Sample section:', sections[0]);
+    }
+
+    return sections;
 }
 
 function displaySections(container, sections, course) {
     if (sections.length === 0) {
-        container.innerHTML = '<p class="no-sections">No sections available for the selected term.</p>';
+        const subjectAbbr = course.Subject?.Abbreviation || 'N/A';
+        const courseNumber = course.Number?.replace(/^0+/, '') || 'N/A';
+        const termName = courseState.currentTerm?.Name || 'selected term';
+
+        container.innerHTML = `
+            <div class="no-sections">
+                <p><strong>No sections found for ${subjectAbbr} ${courseNumber} in ${termName}</strong></p>
+                <p style="font-size: 14px; color: #666; margin-top: 10px;">
+                    This course may not be offered this term. Try selecting a different term from the dropdown.
+                </p>
+            </div>
+        `;
         return;
     }
 
+    // Initialize section page for this course if not exists
+    if (!courseState.sectionPages[course.Id]) {
+        courseState.sectionPages[course.Id] = 1;
+    }
+
+    renderPaginatedSections(container, sections, course);
+}
+
+function renderPaginatedSections(container, sections, course) {
+    const currentPage = courseState.sectionPages[course.Id] || 1;
+    const totalPages = Math.ceil(sections.length / courseState.sectionsPerPage);
+    const startIdx = (currentPage - 1) * courseState.sectionsPerPage;
+    const endIdx = startIdx + courseState.sectionsPerPage;
+    const pageItems = sections.slice(startIdx, endIdx);
+
     container.innerHTML = '<h4>Available Sections:</h4>';
 
+    // Section count info
+    const sectionInfo = document.createElement('div');
+    sectionInfo.className = 'section-info-header';
+    sectionInfo.innerHTML = `
+        <p>Showing ${startIdx + 1}-${Math.min(endIdx, sections.length)} of ${sections.length} sections</p>
+    `;
+    container.appendChild(sectionInfo);
+
+    // Sections list
     const sectionsList = document.createElement('div');
     sectionsList.className = 'sections-list';
 
-    sections.forEach(section => {
+    pageItems.forEach(section => {
         const sectionCard = createSectionCard(section, course);
         sectionsList.appendChild(sectionCard);
     });
 
     container.appendChild(sectionsList);
+
+    // Pagination controls if needed
+    if (totalPages > 1) {
+        const pagination = createSectionPaginationControls(totalPages, sections, course, container);
+        container.appendChild(pagination);
+    }
+}
+
+function createSectionPaginationControls(totalPages, sections, course, container) {
+    const currentPage = courseState.sectionPages[course.Id];
+    const paginationDiv = document.createElement('div');
+    paginationDiv.className = 'section-pagination-controls';
+
+    // Previous button
+    const prevBtn = document.createElement('button');
+    prevBtn.textContent = '← Previous';
+    prevBtn.className = 'section-pagination-btn';
+    prevBtn.disabled = currentPage === 1;
+    prevBtn.onclick = () => {
+        if (currentPage > 1) {
+            courseState.sectionPages[course.Id]--;
+            renderPaginatedSections(container, sections, course);
+        }
+    };
+
+    // Page info
+    const pageInfo = document.createElement('span');
+    pageInfo.className = 'section-page-info';
+    pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+
+    // Next button
+    const nextBtn = document.createElement('button');
+    nextBtn.textContent = 'Next →';
+    nextBtn.className = 'section-pagination-btn';
+    nextBtn.disabled = currentPage === totalPages;
+    nextBtn.onclick = () => {
+        if (currentPage < totalPages) {
+            courseState.sectionPages[course.Id]++;
+            renderPaginatedSections(container, sections, course);
+        }
+    };
+
+    paginationDiv.appendChild(prevBtn);
+    paginationDiv.appendChild(pageInfo);
+    paginationDiv.appendChild(nextBtn);
+
+    return paginationDiv;
 }
 
 function createSectionCard(section, course) {
@@ -338,7 +611,7 @@ function createSectionCard(section, course) {
     card.className = 'section-card';
 
     // Check if section is already selected
-    const isSelected = courseState.selectedSections.some(s => s.SectionId === section.SectionId);
+    const isSelected = courseState.selectedSections.some(s => s.Id === section.Id);
     if (isSelected) {
         card.classList.add('selected');
     }
@@ -346,25 +619,16 @@ function createSectionCard(section, course) {
     // Format meeting times
     const meetingTimes = formatMeetingTimes(section.Meetings);
 
-    // Calculate availability
-    const availability = `${section.Enrolled || 0}/${section.Capacity || 0} enrolled`;
-    const isFull = (section.RemainingSpace || 0) <= 0;
-
     card.innerHTML = `
         <div class="section-header">
-            <span class="section-crn">CRN: ${section.CRN}</span>
+            <span class="section-crn">CRN: ${section.Crn || 'N/A'}</span>
             <span class="section-type">${section.Type || 'Lecture'}</span>
         </div>
         <div class="section-info">
             <div class="section-times">${meetingTimes}</div>
-            <div class="section-availability ${isFull ? 'full' : ''}">
-                ${availability}
-                ${isFull ? '(FULL)' : `(${section.RemainingSpace} seats left)`}
-            </div>
         </div>
         <button class="add-section-btn ${isSelected ? 'selected' : ''}"
-                data-section-id="${section.SectionId}"
-                ${isFull ? 'disabled' : ''}>
+                data-section-id="${section.Id}">
             ${isSelected ? 'Remove from Schedule' : 'Add to Schedule'}
         </button>
     `;
@@ -385,16 +649,19 @@ function formatMeetingTimes(meetings) {
         const time = formatTime(meeting.StartTime, meeting.Duration);
         const location = formatLocation(meeting.Room);
 
-        return `${days}: ${time} - ${location}`;
+        return `<strong>${days}</strong>: ${time} @ ${location}`;
     }).join('<br>');
 }
 
 function formatTime(startTime, duration) {
     if (!startTime) return 'TBA';
 
-    const start = new Date(startTime);
-    const startHour = start.getUTCHours();
-    const startMin = start.getUTCMinutes();
+    // Parse time string format "14:30:00.0000000"
+    const timeMatch = startTime.match(/^(\d+):(\d+):(\d+)/);
+    if (!timeMatch) return 'TBA';
+
+    const startHour = parseInt(timeMatch[1]);
+    const startMin = parseInt(timeMatch[2]);
 
     const startFormatted = formatTimeString(startHour, startMin);
 
@@ -405,9 +672,9 @@ function formatTime(startTime, duration) {
             const hours = parseInt(durationMatch[1] || 0);
             const minutes = parseInt(durationMatch[2] || 0);
 
-            const endMin = startMin + minutes;
-            const endHour = startHour + hours + Math.floor(endMin / 60);
-            const endMinFinal = endMin % 60;
+            const totalEndMin = startMin + minutes;
+            const endHour = startHour + hours + Math.floor(totalEndMin / 60);
+            const endMinFinal = totalEndMin % 60;
 
             const endFormatted = formatTimeString(endHour, endMinFinal);
             return `${startFormatted} - ${endFormatted}`;
@@ -425,19 +692,21 @@ function formatTimeString(hour, minute) {
 }
 
 function formatLocation(room) {
-    if (!room) return 'Location TBA';
+    if (!room) return 'TBA';
 
-    const building = room.Building?.ShortCode || 'TBA';
+    const building = room.Building?.ShortCode || '';
     const roomNum = room.Number || '';
 
-    return `${building} ${roomNum}`;
+    if (!building && !roomNum) return 'TBA';
+
+    return `${building} ${roomNum}`.trim();
 }
 
 // ==========================================
 // Section Selection and Schedule Management
 // ==========================================
 function toggleSectionSelection(section, course, card) {
-    const existingIndex = courseState.selectedSections.findIndex(s => s.SectionId === section.SectionId);
+    const existingIndex = courseState.selectedSections.findIndex(s => s.Id === section.Id);
 
     if (existingIndex >= 0) {
         // Remove section
@@ -472,18 +741,20 @@ function saveSchedule() {
     // Save minimal data to localStorage
     const scheduleData = {
         sections: courseState.selectedSections.map(s => ({
-            SectionId: s.SectionId,
-            CRN: s.CRN,
+            Id: s.Id,
+            Crn: s.Crn,
             Type: s.Type,
             Meetings: s.Meetings,
             _course: {
-                CourseId: s._course.CourseId,
+                Id: s._course.Id,
+                CourseId: s._course.Id,
                 Number: s._course.Number,
                 Title: s._course.Title,
-                Subject: s._course.Subject
+                Subject: s._course.Subject,
+                CreditHours: s._course.CreditHours || 0
             }
         })),
-        termId: courseState.currentTerm?.TermId
+        termId: courseState.currentTerm?.Id
     };
 
     localStorage.setItem('purdueSchedule', JSON.stringify(scheduleData));
@@ -496,8 +767,12 @@ function loadSavedSchedule() {
             const data = JSON.parse(saved);
             courseState.selectedSections = data.sections || [];
 
-            // Update display if schedule container exists
-            updateScheduleDisplay();
+            console.log('✅ Loaded saved schedule:', courseState.selectedSections.length, 'sections');
+
+            // Update display - might need to wait for DOM
+            setTimeout(() => {
+                updateScheduleDisplay();
+            }, 100);
         }
     } catch (error) {
         console.error('Error loading saved schedule:', error);

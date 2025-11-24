@@ -576,3 +576,410 @@ body.dark-theme .tab-button.active {
 body.dark-theme .footer {
     background: #050505;
 }
+
+/* ==========================================
+   Course Search Pagination
+   ========================================== */
+.result-info {
+    padding: 15px 0;
+    text-align: center;
+    color: var(--purdue-dark-gray);
+    font-weight: 500;
+    border-bottom: 2px solid var(--purdue-gray);
+    margin-bottom: 20px;
+}
+
+.pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    padding: 30px 0;
+    margin-top: 20px;
+    border-top: 2px solid var(--purdue-gray);
+}
+
+.pagination-btn {
+    padding: 12px 24px;
+    border: 2px solid var(--purdue-black);
+    background: var(--purdue-white);
+    color: var(--purdue-black);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: var(--transition);
+}
+
+.pagination-btn:hover:not(:disabled) {
+    background: var(--purdue-gold);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.pagination-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    border-color: var(--purdue-gray);
+}
+
+.page-info {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--purdue-black);
+    min-width: 120px;
+    text-align: center;
+}
+
+body.dark-theme .result-info {
+    color: var(--purdue-gray);
+    border-bottom-color: #333333;
+}
+
+body.dark-theme .pagination-controls {
+    border-top-color: #333333;
+}
+
+body.dark-theme .pagination-btn {
+    background: #181818;
+    color: var(--purdue-gray);
+    border-color: #333333;
+}
+
+body.dark-theme .pagination-btn:hover:not(:disabled) {
+    background: var(--purdue-gold);
+    color: var(--purdue-black);
+    border-color: var(--purdue-gold);
+}
+
+body.dark-theme .page-info {
+    color: var(--purdue-gray);
+}
+
+/* ==========================================
+   Section Pagination
+   ========================================== */
+.section-info-header {
+    padding: 10px 0;
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--purdue-dark-gray);
+    font-weight: 500;
+    border-bottom: 1px solid var(--purdue-gray);
+    margin-bottom: 15px;
+}
+
+.section-pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    padding: 20px 0 10px 0;
+    margin-top: 15px;
+    border-top: 1px solid var(--purdue-gray);
+}
+
+.section-pagination-btn {
+    padding: 8px 16px;
+    border: 2px solid var(--purdue-black);
+    background: var(--purdue-white);
+    color: var(--purdue-black);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: var(--transition);
+}
+
+.section-pagination-btn:hover:not(:disabled) {
+    background: var(--purdue-gold);
+    transform: translateY(-1px);
+}
+
+.section-pagination-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.section-page-info {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--purdue-black);
+    min-width: 100px;
+    text-align: center;
+}
+
+body.dark-theme .section-info-header {
+    color: var(--purdue-gray);
+    border-bottom-color: #333333;
+}
+
+body.dark-theme .section-pagination-controls {
+    border-top-color: #333333;
+}
+
+body.dark-theme .section-pagination-btn {
+    background: #181818;
+    color: var(--purdue-gray);
+    border-color: #333333;
+}
+
+body.dark-theme .section-pagination-btn:hover:not(:disabled) {
+    background: var(--purdue-gold);
+    color: var(--purdue-black);
+}
+
+body.dark-theme .section-page-info {
+    color: var(--purdue-gray);
+}
+
+/* ==========================================
+   Search Help Button & Modal
+   ========================================== */
+.search-section {
+    position: relative;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.search-help-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 2px solid var(--purdue-gold);
+    background: var(--purdue-white);
+    color: var(--purdue-old-gold);
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.search-help-btn:hover {
+    background: var(--purdue-gold);
+    color: var(--purdue-black);
+    transform: scale(1.05);
+}
+
+.search-help-btn .help-icon {
+    font-size: 1.3rem;
+    line-height: 1;
+}
+
+/* Modal Overlay */
+.search-tips-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Modal Content */
+.search-tips-modal {
+    background: var(--purdue-white);
+    border-radius: var(--border-radius);
+    max-width: 600px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-lg);
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.search-tips-header {
+    background: linear-gradient(135deg, var(--purdue-old-gold), var(--purdue-gold));
+    padding: 20px 25px;
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.search-tips-header h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: var(--purdue-black);
+}
+
+.close-tips-btn {
+    background: transparent;
+    border: none;
+    font-size: 2rem;
+    color: var(--purdue-black);
+    cursor: pointer;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: var(--transition);
+}
+
+.close-tips-btn:hover {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.search-tips-content {
+    padding: 25px;
+}
+
+.tip-section {
+    margin-bottom: 25px;
+}
+
+.tip-section:last-child {
+    margin-bottom: 0;
+}
+
+.tip-section h4 {
+    font-size: 1.1rem;
+    margin-bottom: 12px;
+    color: var(--purdue-black);
+}
+
+.tip-section ul {
+    list-style: none;
+    padding: 0;
+}
+
+.tip-section li {
+    padding: 8px 0;
+    color: #333;
+    line-height: 1.6;
+}
+
+.tip-section kbd {
+    background: var(--purdue-black);
+    color: var(--purdue-white);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.9rem;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.tip-section code {
+    background: var(--purdue-gold);
+    color: var(--purdue-black);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+.shortcut-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.shortcut-item {
+    background: var(--purdue-gray);
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    text-align: center;
+    transition: var(--transition);
+}
+
+.shortcut-item:hover {
+    background: var(--purdue-gold);
+    transform: translateY(-2px);
+}
+
+/* Dark Theme Support */
+body.dark-theme .search-help-btn {
+    background: #181818;
+    border-color: var(--purdue-gold);
+    color: var(--purdue-gold);
+}
+
+body.dark-theme .search-help-btn:hover {
+    background: var(--purdue-gold);
+    color: var(--purdue-black);
+}
+
+body.dark-theme .search-tips-modal {
+    background: #181818;
+}
+
+body.dark-theme .search-tips-header h3 {
+    color: var(--purdue-black);
+}
+
+body.dark-theme .search-tips-content {
+    color: var(--purdue-gray);
+}
+
+body.dark-theme .tip-section h4 {
+    color: var(--purdue-gold);
+}
+
+body.dark-theme .tip-section li {
+    color: var(--purdue-gray);
+}
+
+body.dark-theme .shortcut-item {
+    background: #282828;
+    color: var(--purdue-gray);
+}
+
+body.dark-theme .shortcut-item:hover {
+    background: var(--purdue-gold);
+    color: var(--purdue-black);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .search-tips-modal {
+        max-width: 100%;
+        margin: 10px;
+    }
+
+    .shortcut-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .search-help-btn {
+        width: 38px;
+        height: 38px;
+        font-size: 1rem;
+    }
+}
