@@ -616,7 +616,7 @@ function handleKeyboardShortcut(event) {
 async function logLinkUsage(link) {
     try {
         // Don't block the UI - fire and forget
-        const response = await fetch('http://localhost:3000/api/usage', {
+        const response = await fetch('/api/usage', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

@@ -43,7 +43,7 @@ const courseElements = {
 // ==========================================
 // Use backend proxy to avoid CORS issues
 // Backend will forward requests to https://api.purdue.io/odata
-const API_BASE = 'http://localhost:3000/api/purdue';
+const API_BASE = '/api/purdue';
 
 // ==========================================
 // Initialization
@@ -481,7 +481,7 @@ async function loadCourseSections(courseId) {
     console.log('  Term Name:', courseState.currentTerm.Name);
 
     // Use backend endpoint to filter sections server-side
-    const url = `http://localhost:3000/api/course-sections/${courseId}/${courseState.currentTerm.Id}`;
+    const url = `/api/course-sections/${courseId}/${courseState.currentTerm.Id}`;
 
     const response = await fetch(url);
     if (!response.ok) {

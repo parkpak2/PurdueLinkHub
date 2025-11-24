@@ -7,7 +7,7 @@
 // Configuration
 // ==========================================
 const TRENDING_CONFIG = {
-    apiUrl: 'http://localhost:3000/api/popular',
+    apiUrl: '/api/popular',
     refreshInterval: 60000, // 1 minute
     displayCount: 5,
     defaultRange: '7d'
