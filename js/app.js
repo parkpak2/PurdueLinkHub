@@ -450,13 +450,18 @@ function createLinkCard(link) {
 
     // Add click handler for the card (open link)
     card.addEventListener('click', (event) => {
-        // Don't open link if clicking the pin button
-        if (!event.target.classList.contains('pin-button')) {
-            // Log usage to server
-            logLinkUsage(link);
+        // If clicking the pin button, do nothing
+        if (event.target.classList.contains('pin-button')) return;
 
-            window.open(link.url, '_blank', 'noopener,noreferrer');
+        // Feature cards (Guide, To-Do, Search)
+        if (link.id === 'feature-guide') {  
+            openUserGuide();
+            return;
         }
+
+        // Normal resource card → open link + track usage
+        logLinkUsage(link);
+        window.open(link.url, '_blank', 'noopener,noreferrer');
     });
 
     // Add click handler for pin button
