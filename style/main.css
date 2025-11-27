@@ -390,6 +390,126 @@ body {
 }
 
 /* ==========================================
+   Guide 
+   ========================================== */
+.guide-overlay {
+    position: fixed;
+    inset: 0;
+    background: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 500;
+    pointer-events: none;
+}
+
+.guide-card {
+    position: absolute;
+    width: 480px;
+    max-width: 95vw;
+    max-height: 80vh;
+    background: var(--purdue-white);
+    color: var(--purdue-black);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    pointer-events: auto;
+    font-size: calc(0.95rem * var(--guide-text-scale, 1));
+}
+
+.guide-header {
+    padding: 12px 16px;
+    background: var(--purdue-black);
+    color: var(--purdue-gold);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: move;
+}
+
+.guide-title {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.guide-close {
+    background: transparent;
+    border: none;
+    color: var(--purdue-white);
+    font-size: 1.4rem;
+    cursor: pointer;
+    padding: 0 4px;
+}
+
+.guide-body {
+    padding: 14px 16px;
+    font-size: 0.95rem;
+    overflow-y: auto;
+}
+
+.guide-item {
+    border-bottom: 1px solid var(--purdue-gray);
+    padding: 6px 0;
+}
+
+.guide-toggle {
+    width: 100%;
+    background: transparent;
+    border: none;
+    text-align: left;
+    padding: 8px 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.guide-toggle::after {
+    content: "▾";
+    font-size: 0.8rem;
+    transition: transform 0.2s ease;
+}
+
+.guide-toggle.open::after {
+    transform: rotate(180deg);
+}
+
+.guide-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.25s ease;
+    padding-right: 3px;
+}
+
+.guide-content p{
+    margin-bottom: 10px;
+}
+
+.guide-content.open {
+    max-height:100%;
+}
+
+.guide-resize-handle {
+    width: 16px;
+    height: 16px;
+    position: absolute;
+    right: 4px;
+    bottom: 4px;
+    cursor: se-resize;
+    background: linear-gradient(135deg,
+        transparent 0%,
+        transparent 50%,
+        var(--purdue-gold) 51%,
+        var(--purdue-gold) 100%
+    );
+}
+
+
+/* ==========================================
    Footer
    ========================================== */
 .footer {
@@ -580,9 +700,32 @@ body.dark-theme .tab-button.active {
     border-color: var(--purdue-gold);
 }
 
+body.dark-theme .guide-card {
+    background: #181818;
+    color: var(--purdue-gray);
+}
+
+body.dark-theme .guide-header {
+    background: #050505;
+    color: var(--purdue-gold);
+}
+
+body.dark-theme .guide-body {
+    color: var(--purdue-gray);
+}
+
+body.dark-theme .guide-toggle {
+    color: var(--purdue-gray);
+}
+
+body.dark-theme .guide-toggle:hover {
+    color: var(--purdue-gold); 
+}
+
 body.dark-theme .footer {
     background: #050505;
 }
+
 
 /* ==========================================
    Course Search Pagination

@@ -205,5 +205,15 @@
     "description": "Official Change of Degree Objective (CODO) requirements and application process, Change major",
     "icon": "🔄",
     "aliases": ["codo", "change major", "switch major", "transfer"]
-  }
+  },
+  {
+    "id": "feature-guide",
+    "name": "User Guide",
+    "url": "#",
+    "category": "Features",
+    "description": "Learn how to use Purdue Link Hub",
+    "icon": "📘",
+    "aliases": ["help"]
+}
 ]
+
