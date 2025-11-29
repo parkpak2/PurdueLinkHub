@@ -223,6 +223,15 @@
     "description": "Manage tasks, assignments, and personal checklists.",
     "icon": "🗹",
     "aliases": ["to-do", "todo", "check", "list"]
+},
+{
+    "id": "purdue-search",
+    "name": "Purdue Search",
+    "url": "#", 
+    "icon": "🔎",
+    "category": "Features",
+    "description": "Search the official Purdue.edu domain for pages, people, and news.",
+    "aliases": ["google", "find", "directory", "site search", "web"]
 }
 ]
 
