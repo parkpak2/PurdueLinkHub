@@ -558,7 +558,7 @@ app.listen(PORT, () => {
     console.log(`  POST   /api/usage       - Log link click`);
     console.log(`  GET    /api/popular     - Get trending links`);
     console.log(`  GET    /api/stats       - Get statistics`);
-    console.log(`  DELETE /api/usage/clear - Clear all data`);
+    console.log(`  DELETE s/api/usage/clear - Clear all data`);
     console.log(`  GET    /health          - Health check`);
     console.log('===========================================');
 });

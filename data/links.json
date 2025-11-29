@@ -213,7 +213,16 @@
     "category": "Features",
     "description": "Learn how to use Purdue Link Hub",
     "icon": "📘",
-    "aliases": ["help"]
+    "aliases": ["help", "guide", "new", "schedule"]
+},
+  {
+    "id": "todo-list",
+    "name": "To-Do List",
+    "url": "#",
+    "category": "Features",
+    "description": "Manage tasks, assignments, and personal checklists.",
+    "icon": "🗹",
+    "aliases": ["to-do", "todo", "check", "list"]
 }
 ]
 
