@@ -508,6 +508,434 @@ body {
     );
 }
 
+/* ==========================================
+   To-Do List Feature Styles
+   ========================================== */
+
+/* 1. Dashboard Widget Styles (Used for the counter inside the card) */
+.todo-widget .todo-summary {
+    text-align: center;
+    padding: 15px 0;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.todo-widget .task-count {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--purdue-old-gold);
+    line-height: 1;
+}
+
+.todo-widget .task-label {
+    font-size: 0.9rem;
+    color: var(--purdue-dark-gray);
+    font-weight: 500;
+}
+
+/* 2. Modal Toolbar Styles */
+.todo-toolbar {
+    display: flex;
+    gap: 10px;
+    padding: 10px 15px;
+    background: #f4f4f4;
+    border-bottom: 1px solid var(--purdue-gray);
+    align-items: center;
+}
+
+.todo-tool-btn {
+    border: 1px solid #ccc;
+    background: white;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    font-weight: 600;
+    transition: var(--transition);
+}
+
+.todo-tool-btn:hover {
+    background: var(--purdue-gray);
+}
+
+.todo-tool-btn.danger {
+    color: #d32f2f;
+    border-color: #ffcdd2;
+}
+
+.todo-tool-btn.danger:hover {
+    background: #ffebee;
+    border-color: #d32f2f;
+}
+
+.divider {
+    width: 1px;
+    height: 20px;
+    background: #ccc;
+    margin: 0 5px;
+}
+
+/* 3. Task List Item Styles */
+.todo-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+    gap: 15px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
+}
+
+.task-checkbox {
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+    accent-color: var(--purdue-black);
+    margin: 0;
+}
+
+.todo-item.selected {
+    border-bottom: 3px solid var(--purdue-gold) !important;
+    background: rgba(206, 184, 136, 0.05);
+}
+
+.todo-item:hover:not(.selected) {
+    background: #fafafa;
+}
+
+.todo-text-group {
+    display: flex;
+    flex-direction: row;
+    align-items:center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.task-text {
+    font-size: 1rem;
+    color: var(--purdue-black); 
+    outline: none;
+    flex-grow: 1;
+    margin-right: 15px;
+    min-width: 0;
+    min-height: 1.2em;
+}
+
+.task-text:empty::before {
+    content: "New Task";
+    color: #888;
+    pointer-events: none; 
+    font-style: italic;
+}
+
+.task-due:empty::before {
+    content: "Set Date";
+    color: #aaa;
+    pointer-events: none;
+    font-size: 0.75rem;
+}
+
+.task-text, .task-due {
+    min-width: 50px; 
+    min-height: 1.2em;
+    display: inline-block;
+}
+
+.task-due {
+    font-size: 0.75rem;
+    color: #888;
+    margin-top: 2px;
+    outline: none;
+}
+
+#addSubtaskBtn {
+    margin-right: 5px;
+}
+
+.todo-item.subtask {
+    padding-left: 45px;
+    background: #fdfdfd;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.todo-item.subtask .task-text {
+    font-size: 0.95rem;
+}
+
+.todo-group {
+    border-bottom: 1px solid #eee;
+}
+
+.todo-item.parent {
+    border-bottom: none; 
+    background: #fff;
+}
+
+.subtask-container {
+    padding-left: 0;
+    margin-left: 0;
+    min-height: 5px; 
+}
+
+.todo-item.subtask {
+    padding-left: 45px;
+    background: #fafafa;
+    border-top: 1px solid #f0f0f0;
+    border-bottom: none;
+}
+
+.todo-item.level-0 {
+    background: var(--purdue-white);
+    border-bottom: 1px solid #eee;
+}
+
+.todo-item.level-1 {
+    margin-left: 20px;
+    border-left: 2px solid var(--purdue-gray);
+    background: #fafafa;
+}
+
+.todo-item.level-2 {
+    margin-left: 40px;
+    border-left: 2px solid var(--purdue-gray);
+    background: #f4f4f4;
+}
+
+.task-date-icon {
+    font-size: 0.9em;
+    opacity: 0.7;
+}
+
+.todo-item.level-1 .task-date-wrapper,
+.todo-item.level-2 .task-date-wrapper {
+    padding: 4px 8px; 
+    font-size: 0.7rem;
+}
+
+.task-date-wrapper {
+    position: relative;
+    background: #eee;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    color: #555;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.task-date-wrapper:hover {
+    background: #e0e0e0;
+    color: #000;
+}
+
+.task-date-input {
+    position: absolute;
+    inset: 0;         
+    opacity: 0;       
+    width: 100%;
+    height: 100%;
+    cursor: pointer;  /
+}
+
+/* 4. Color Picker */
+.color-picker-modal {
+    background: var(--purdue-white); /* Adapts to theme */
+    padding: 20px;
+    border-radius: 8px;
+    width: 280px;
+    border: 1px solid #ccc;
+    text-align: center;
+}
+
+body.dark-theme .color-picker-modal {
+    background: #202124;
+    border-color: #5f6368;
+}
+
+.color-picker-modal h3 {
+    color: #e8eaed;
+    margin-bottom: 15px;
+}
+
+.color-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); 
+    gap: 10px;
+}
+
+.color-swatch {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: transform 0.2s;
+}
+
+.color-swatch:hover {
+    transform: scale(1.1);
+    border-color: #888;
+}
+
+
+.color-none   { background-color: #ffffff !important; border: 1px solid #eee; }
+.color-red    { background-color: #d32f2f !important; } 
+.color-orange { background-color: #f57c00 !important; } 
+.color-yellow { background-color: #fbc02d !important; } 
+.color-green  { background-color: #388e3c !important; } 
+.color-teal   { background-color: #00796b !important; } 
+.color-blue   { background-color: #1976d2 !important; } 
+.color-purple { background-color: #7b1fa2 !important; } 
+.color-pink   { background-color: #c2185b !important; } 
+
+.todo-item[class*="color-"] .task-text {
+    color: #000 !important;
+}
+
+body.dark-theme .color-none   { background-color: #2d2e30 !important; border-color: #555; }
+body.dark-theme .color-red    { background-color: #5C2B29 !important; }
+body.dark-theme .color-orange { background-color: #614A19 !important; }
+body.dark-theme .color-yellow { background-color: #635D19 !important; }
+body.dark-theme .color-green  { background-color: #345920 !important; }
+body.dark-theme .color-teal   { background-color: #16504B !important; }
+body.dark-theme .color-blue   { background-color: #2D555E !important; }
+body.dark-theme .color-purple { background-color: #42275E !important; }
+body.dark-theme .color-pink   { background-color: #5B2245 !important; }
+
+body.dark-theme .todo-item[class*="color-"] .task-text {
+    color: #fff !important;
+}
+
+.todo-item.color-red, 
+.todo-item.color-orange,
+.todo-item.color-yellow,
+.todo-item.color-green,
+.todo-item.color-teal,
+.todo-item.color-blue,
+.todo-item.color-purple,
+.todo-item.color-pink {
+    border: 1px solid transparent; 
+    color: white; 
+}
+
+.todo-item.color-red .task-text, 
+.todo-item.color-orange .task-text,
+.todo-item.color-yellow .task-text,
+.todo-item.color-green .task-text,
+.todo-item.color-teal .task-text,
+.todo-item.color-blue .task-text,
+.todo-item.color-purple .task-text,
+.todo-item.color-pink .task-text {
+    color: white !important;
+}
+
+.todo-item.color-red .task-text, 
+.todo-item.color-blue .task-text,
+.todo-item.color-pink .task-text {
+    caret-color: white;
+}
+
+.todo-item {
+    transition: background-color 0.3s ease;
+}
+
+/* 5. Links */
+
+.task-link-icon {
+    text-decoration: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: transform 0.2s;
+    margin-right: 15px; 
+    opacity: 0.9;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));
+}
+
+.task-link-icon:hover {
+    transform: scale(1.2);
+    opacity: 1;
+}
+
+/* 6. Due date */
+
+.modal-overlay {
+    position: fixed;
+    top: 0; 
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); 
+    z-index: 2000; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.date-picker-modal {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.date-picker-modal h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: #333;
+}
+
+.date-picker-modal input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.task-date-badge {
+    font-size: 0.75rem;
+    color: #444;
+    background-color: #e2e8f0; 
+    padding: 2px 8px;
+    border-radius: 12px;
+    margin-left: auto; 
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.task-date-badge.today {
+    background-color: #e3f2fd;
+    color: #0288d1;
+    font-weight: bold;
+    border: 1px solid #b3e5fc;
+}
+
+.task-date-badge.overdue {
+    background-color: #ffebee;
+    color: #c62828;
+    font-weight: bold;
+    border: 1px solid #ffcdd2;
+}
+
+.todo-text-group {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
 
 /* ==========================================
    Footer
@@ -1114,6 +1542,77 @@ body.dark-theme .shortcut-item {
 body.dark-theme .shortcut-item:hover {
     background: var(--purdue-gold);
     color: var(--purdue-black);
+}
+
+body.dark-theme .todo-widget .task-count { 
+    color: var(--purdue-gold); 
+}
+
+body.dark-theme .todo-widget .task-label { 
+    color: var(--purdue-gray); 
+}
+
+body.dark-theme .todo-toolbar { 
+    background: #222; 
+    border-color: #444; 
+}
+
+body.dark-theme .todo-tool-btn { 
+    background: #333; 
+    color: var(--purdue-gray); 
+    border-color: #555; 
+}
+
+body.dark-theme .todo-item {
+    border-bottom: 1px solid #333;
+}
+
+body.dark-theme .todo-item:hover { 
+    background: #222; 
+}
+
+body.dark-theme .todo-item.subtask { 
+    background: #1a1a1a; 
+    border-color: #333; 
+}
+
+body.dark-theme .task-text { 
+    color: var(--purdue-gray); 
+}
+
+body.dark-theme .todo-item.parent {
+    background: #181818; 
+    color: var(--purdue-gray);
+    border-bottom: none;
+}
+
+body.dark-theme .task-text:empty::before {
+    color: #777;
+}
+
+body.dark-theme .task-due:empty::before {
+    color: #555;
+}
+
+body.dark-theme .todo-item.level-0 { 
+    background: #181818; border-color: #333; 
+}
+
+body.dark-theme .todo-item.level-1 { 
+    background: #1f1f1f; border-color: #444; 
+}
+
+body.dark-theme .todo-item.level-2 { 
+    background: #252525; border-color: #444; 
+}
+
+body.dark-theme .task-date-wrapper {
+    background: #2a2a2a;
+    color: #aaa;
+}
+body.dark-theme .task-date-wrapper:hover {
+    background: #333;
+    color: var(--purdue-gold);
 }
 
 /* Responsive Design */

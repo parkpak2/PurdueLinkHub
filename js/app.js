@@ -453,11 +453,17 @@ function createLinkCard(link) {
         // If clicking the pin button, do nothing
         if (event.target.classList.contains('pin-button')) return;
 
-        // Feature cards (Guide, To-Do, Search)
+        // Feature cards 
         if (link.id === 'feature-guide') {  
             openUserGuide();
             return;
         }
+
+        // Npen To-Do Modal
+        if (link.id === 'todo-list') {
+            openTodoModal(); 
+            return;
+    }
 
         // Normal resource card → open link + track usage
         logLinkUsage(link);

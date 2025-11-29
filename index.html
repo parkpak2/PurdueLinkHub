@@ -241,6 +241,74 @@
         </div>
     </div>
 
+    <!-- To-Do List -->
+     
+    <div class="guide-overlay" id="todoOverlay" style="display: none;">
+        <div class="guide-card todo-card" id="todoCardPanel">
+            <div class="guide-header" id="todoHeader">
+                <h2 class="guide-title">To-Do List</h2>
+                <button class="guide-close" id="closeTodo">&times;</button>
+            </div>
+            <div class="todo-toolbar">
+                <button class="todo-tool-btn" id="addTaskBtn">➕ Task</button>
+                <button class="todo-tool-btn" id="addSubtaskBtn">↪ Subtask</button>
+                <div class="divider"></div>
+                <button class="todo-tool-btn" id="dateBtn">📅 Date</button>
+                <button class="todo-tool-btn" id="addLinkBtn">🔗 Link</button>
+                <button class="todo-tool-btn" id="colorBtn">🎨 Color</button>
+                <div class="divider"></div>
+                <button class="todo-tool-btn danger" id="deleteBtn">🗑️ Delete</button>
+            </div>
+            <div class="guide-body todo-list-body" id="todoList"> </div>
+            <div class="guide-resize-handle" id="todoResize"></div>
+        </div>
+    </div>
+
+    <!-- To-Do List Dates -->
+    <div id="dateModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content date-picker-modal">
+            <h3>Set Deadline</h3>
+            <input type="datetime-local" id="modalDateInput">
+            <div class="modal-actions" style="margin-top: 15px; text-align: right;">
+                <button id="clearDateBtn" style="background: #ff4d4d; color: white; border:none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Remove</button>
+                <button id="saveDateBtn" style="background: #007bff; color: white; border:none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Save</button>
+                <button id="closeDateModalBtn" style="background: #ccc; border:none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- To-Do List Colors -->
+    <div id="colorModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content color-picker-modal">
+            <h3>Pick a Color</h3>
+            <div class="color-grid">
+                <div class="color-swatch color-none" data-color=""></div>   
+                <div class="color-swatch color-red" data-color="color-red"></div>     
+                <div class="color-swatch color-orange" data-color="color-orange"></div>     
+                <div class="color-swatch color-yellow" data-color="color-yellow"></div>       
+                <div class="color-swatch color-green" data-color="color-green"></div>         
+                <div class="color-swatch color-teal" data-color="color-teal"></div>          
+                <div class="color-swatch color-blue" data-color="color-blue"></div>            
+                <div class="color-swatch color-purple" data-color="color-purple"></div>
+                <div class="color-swatch color-pink" data-color="color-pink"></div>
+            </div>
+            <button id="closeColorModalBtn" style="margin-top: 15px; width: 100%; padding: 8px;">Cancel</button>
+        </div>
+    </div>
+
+    <!-- To-Do List Links-->
+    <div id="linkModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content date-picker-modal"> <h3>Add Link</h3>
+            <input type="url" id="modalLinkInput" placeholder="https://www.purdue.edu" style="width: 100%; padding: 10px; margin-bottom: 15px; box-sizing: border-box;">
+        
+            <div class="modal-actions" style="text-align: right;">
+                <button id="clearLinkBtn" style="background: #ff4d4d; color: white; border:none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Remove</button>
+                <button id="saveLinkBtn" style="background: #007bff; color: white; border:none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Save</button>
+                <button id="closeLinkModalBtn" style="background: #ccc; border:none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
@@ -255,6 +323,7 @@
     <script src="js/schedule.js"></script>
     <script src="js/courseSearch.js"></script>
     <script src="js/guide.js"></script>
+    <script src="js/todo.js"></script>
     <script>
         // Initialize all systems after DOM is loaded
         document.addEventListener('DOMContentLoaded', () => {
