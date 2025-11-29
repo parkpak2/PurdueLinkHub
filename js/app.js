@@ -463,7 +463,17 @@ function createLinkCard(link) {
         if (link.id === 'todo-list') {
             openTodoModal(); 
             return;
-    }
+        }
+
+        if (link.id === 'purdue-search') {
+        // This function lives in search.js now!
+        if (typeof openPurdueSearch === 'function') {
+            openPurdueSearch();
+        } else {
+            console.error('search.js not loaded');
+        }
+        return;
+        }
 
         // Normal resource card → open link + track usage
         logLinkUsage(link);
